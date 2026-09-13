@@ -1,4 +1,4 @@
-# 학원 메신저 (Academy Messenger)
+# TheAll Messenger
 
 선생님과 조교가 학원 내부망에서 메시지를 주고받는 가벼운 데스크톱 앱.
 
