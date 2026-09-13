@@ -32,3 +32,32 @@ describe('POST /attendance/check-in', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('GET /attendance/roster', () => {
+  it('returns the computed roster for the given date', async () => {
+    const { app } = buildApp();
+    const studentRes = await request(app).post('/students').send({ name: '김민준' });
+    await request(app)
+      .post('/classes')
+      .send({
+        name: '중2 수학',
+        teacherName: '박선생',
+        schedule: [{ dayOfWeek: 1, startTime: '16:00', endTime: '17:30' }],
+        studentIds: [studentRes.body.data.id]
+      });
+
+    // 2024-01-01 is a Monday.
+    const res = await request(app).get('/attendance/roster?date=2024-01-01');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([
+      expect.objectContaining({ studentId: studentRes.body.data.id, source: 'class', checkedIn: false })
+    ]);
+  });
+
+  it('rejects a missing date query param', async () => {
+    const { app } = buildApp();
+    const res = await request(app).get('/attendance/roster');
+    expect(res.status).toBe(400);
+  });
+});

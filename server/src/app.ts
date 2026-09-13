@@ -32,7 +32,7 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
   app.use('/students', createStudentsRouter(new StudentRepository(db), broadcast));
   app.use('/classes', createClassesRouter(new ClassRepository(db), broadcast));
   app.use('/clinics', createClinicsRouter(new ClinicRepository(db), broadcast));
-  app.use('/attendance', createAttendanceRouter(new AttendanceRepository(db), broadcast));
+  app.use('/attendance', createAttendanceRouter(db, new AttendanceRepository(db), broadcast));
 
   app.use((_req: Request, res: Response) => {
     const response: ApiResponse<never> = { success: false, error: 'not found' };
