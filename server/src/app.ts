@@ -5,9 +5,11 @@ import type { ApiResponse } from '@theall/shared';
 import { StudentRepository } from './repositories/studentRepository.js';
 import { ClassRepository } from './repositories/classRepository.js';
 import { ClinicRepository } from './repositories/clinicRepository.js';
+import { AttendanceRepository } from './repositories/attendanceRepository.js';
 import { createStudentsRouter } from './routes/students.js';
 import { createClassesRouter } from './routes/classes.js';
 import { createClinicsRouter } from './routes/clinics.js';
+import { createAttendanceRouter } from './routes/attendance.js';
 import type { Broadcaster } from './broadcast.js';
 import { logger } from './logger.js';
 
@@ -30,6 +32,7 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
   app.use('/students', createStudentsRouter(new StudentRepository(db), broadcast));
   app.use('/classes', createClassesRouter(new ClassRepository(db), broadcast));
   app.use('/clinics', createClinicsRouter(new ClinicRepository(db), broadcast));
+  app.use('/attendance', createAttendanceRouter(new AttendanceRepository(db), broadcast));
 
   app.use((_req: Request, res: Response) => {
     const response: ApiResponse<never> = { success: false, error: 'not found' };
