@@ -1,7 +1,9 @@
 import express, { type Express } from 'express';
 import type Database from 'better-sqlite3';
 import { StudentRepository } from './repositories/studentRepository.js';
+import { ClassRepository } from './repositories/classRepository.js';
 import { createStudentsRouter } from './routes/students.js';
+import { createClassesRouter } from './routes/classes.js';
 import type { Broadcaster } from './broadcast.js';
 
 export function createApp(db: Database.Database, broadcast: Broadcaster): Express {
@@ -13,6 +15,7 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
   });
 
   app.use('/students', createStudentsRouter(new StudentRepository(db), broadcast));
+  app.use('/classes', createClassesRouter(new ClassRepository(db), broadcast));
 
   return app;
 }
