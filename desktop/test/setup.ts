@@ -1,4 +1,14 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+// vite.config.ts does not set test.globals, so Testing Library's automatic
+// cleanup registration never fires. Without this, DOM from one test in a
+// multi-test file stays mounted for the next test, causing "multiple
+// elements found" failures.
+afterEach(() => {
+  cleanup();
+});
 
 type Listener = (event: unknown) => void;
 
