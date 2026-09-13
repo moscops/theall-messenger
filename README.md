@@ -1,19 +1,55 @@
-# TheAll Messenger
+# TheAll Messenger — Student/Class/Clinic Master Data
 
-선생님과 조교가 학원 내부망에서 메시지를 주고받는 가벼운 데스크톱 앱.
+An internal desktop tool for managing student, class, and clinic-assignment
+master data over the LAN. This is the first sub-project of TheAll Messenger:
+a Node.js/Express/SQLite server plus an Electron + React desktop client, kept
+in sync via a WebSocket-based live-refresh channel.
 
-## 현재 상태: 설계 진행 중
+## Monorepo layout
 
-- **아키텍처 방향**: Synology NAS의 Container Manager에 Node.js(WebSocket) 백엔드를
-  상시 컨테이너로 올리고, 선생님·조교 PC의 Electron 앱은 순수 클라이언트로
-  LAN을 통해 접속. 메시지 저장(SQLite 등)은 NAS 로컬 파일시스템에 두어
-  네트워크 공유(SMB/CIFS) 위의 DB 파일 손상 문제를 피함.
-- **UI 목업(클릭 가능한 프로토타입)**:
-  https://claude.ai/code/artifact/decaab63-37e5-4e5d-b928-ac62a6499cd8
-- **아직 정하지 않은 것**: 메시지 저장 스키마, 인증 방식, 재연결/오프라인 큐잉
-  처리, 대화 이력 보관 정책.
+npm workspaces, three packages:
 
-## 다음 단계
+- `shared/` — Zod schemas and shared types (`Student`, `Class`,
+  `ClinicAssignment`, `ApiResponse`, WebSocket change-message contract)
+  used by both `server` and `desktop`.
+- `server/` — Express REST API + WebSocket change broadcaster, backed by
+  SQLite (`better-sqlite3`).
+- `desktop/` — Electron shell around a Vite + React renderer, with CRUD
+  screens for students, classes, and clinic assignments.
 
-남은 설계 항목을 확정한 뒤 `docs/superpowers/specs/`에 정식 설계 문서를
-작성하고, 그 문서를 기준으로 구현 계획을 세운다.
+## Running for development
+
+From the repo root:
+
+```bash
+npm install
+```
+
+Then, in separate terminals:
+
+```bash
+npm run dev --workspace=server    # starts the API on http://localhost:4000
+npm run dev --workspace=desktop   # starts Vite + Electron
+```
+
+The desktop app's Electron window requires a real display (X11/Wayland/macOS/
+Windows) — it will not launch in CI or headless sandboxes. The Vite dev
+server on its own (`http://localhost:5173`) can still be exercised in a
+browser without Electron.
+
+Useful workspace-scoped scripts (also runnable at the root with
+`--workspaces --if-present`):
+
+- `npm run test --workspace=<shared|server|desktop>`
+- `npm run typecheck --workspace=<shared|server|desktop>`
+
+## Design background
+
+The original product concept, full design history, and the implementation
+plan for this slice live under `docs/superpowers/`:
+
+- [Student database design spec](docs/superpowers/specs/2026-09-13-student-database-design.md)
+- [Implementation plan](docs/superpowers/plans/2026-09-13-student-class-clinic-master-data.md)
+
+Authentication and a packaged production build are deferred to later work;
+this slice targets LAN-only internal use during development.
