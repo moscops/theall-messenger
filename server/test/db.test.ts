@@ -10,10 +10,14 @@ describe('createDb', () => {
       .map((row: { name: string }) => row.name);
 
     expect(tables).toEqual([
+      'attendance_logs',
       'class_enrollments',
       'class_schedule_slots',
       'classes',
       'clinic_assignments',
+      'no_show_alert_config',
+      'schedule_exceptions',
+      'student_comments',
       'student_siblings',
       'students'
     ]);
