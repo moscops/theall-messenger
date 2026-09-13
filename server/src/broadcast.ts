@@ -1,13 +1,15 @@
 import type { WebSocketServer } from 'ws';
+import type { ChangeMessage, ChangeTopic } from '@theall/shared';
 
-export type ChangeTopic = 'students' | 'classes' | 'clinics';
+export type { ChangeTopic };
 
 export function createBroadcaster(wss: WebSocketServer) {
   return function broadcastChange(topic: ChangeTopic): void {
-    const message = JSON.stringify({ type: 'changed', topic });
+    const message: ChangeMessage = { type: 'changed', topic };
+    const payload = JSON.stringify(message);
     for (const client of wss.clients) {
       if (client.readyState === client.OPEN) {
-        client.send(message);
+        client.send(payload);
       }
     }
   };
