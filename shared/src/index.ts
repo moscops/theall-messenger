@@ -1,1 +1,1 @@
-export const SHARED_PACKAGE_NAME = '@theall/shared';
+export * from './schemas.js';
