@@ -10,6 +10,7 @@ export function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [form, setForm] = useState<StudentInput>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     studentsApi.list().then(setStudents).catch((error: unknown) => logger.error(error));
@@ -20,14 +21,21 @@ export function StudentsPage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (editingId) {
-      await studentsApi.update(editingId, form);
-    } else {
-      await studentsApi.create(form);
+    try {
+      if (editingId) {
+        await studentsApi.update(editingId, form);
+      } else {
+        await studentsApi.create(form);
+      }
+      setForm(emptyForm);
+      setEditingId(null);
+      setError(null);
+      refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'unknown error';
+      logger.error(err);
+      setError(message);
     }
-    setForm(emptyForm);
-    setEditingId(null);
-    refresh();
   };
 
   const handleEdit = (student: Student) => {
@@ -44,8 +52,15 @@ export function StudentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await studentsApi.remove(id);
-    refresh();
+    try {
+      await studentsApi.remove(id);
+      setError(null);
+      refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'unknown error';
+      logger.error(err);
+      setError(message);
+    }
   };
 
   return (
@@ -74,6 +89,7 @@ export function StudentsPage() {
           ))}
         </tbody>
       </table>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
           placeholder="이름"

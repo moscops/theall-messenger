@@ -16,27 +16,38 @@ export function ClinicPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [form, setForm] = useState<ClinicAssignmentInput>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     clinicsApi.list().then(setAssignments).catch((error: unknown) => logger.error(error));
   }, []);
 
-  useEffect(refresh, [refresh]);
-  useEffect(() => {
+  const refreshStudents = useCallback(() => {
     studentsApi.list().then(setStudents).catch((error: unknown) => logger.error(error));
   }, []);
+
+  useEffect(refresh, [refresh]);
+  useEffect(refreshStudents, [refreshStudents]);
   useLiveRefresh('clinics', refresh);
+  useLiveRefresh('students', refreshStudents);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (editingId) {
-      await clinicsApi.update(editingId, form);
-    } else {
-      await clinicsApi.create(form);
+    try {
+      if (editingId) {
+        await clinicsApi.update(editingId, form);
+      } else {
+        await clinicsApi.create(form);
+      }
+      setForm(emptyForm);
+      setEditingId(null);
+      setError(null);
+      refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'unknown error';
+      logger.error(err);
+      setError(message);
     }
-    setForm(emptyForm);
-    setEditingId(null);
-    refresh();
   };
 
   const handleEdit = (assignment: ClinicAssignment) => {
@@ -50,8 +61,15 @@ export function ClinicPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await clinicsApi.remove(id);
-    refresh();
+    try {
+      await clinicsApi.remove(id);
+      setError(null);
+      refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'unknown error';
+      logger.error(err);
+      setError(message);
+    }
   };
 
   const studentName = (id: string) => students.find((s) => s.id === id)?.name ?? id;
@@ -82,6 +100,7 @@ export function ClinicPage() {
           ))}
         </tbody>
       </table>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <select
           value={form.studentId}
