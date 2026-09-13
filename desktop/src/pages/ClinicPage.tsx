@@ -3,6 +3,7 @@ import type { ClinicAssignment, ClinicAssignmentInput, Student } from '@theall/s
 import { clinicsApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
+import { DAY_LABELS, formatDayOfWeek } from '../dayOfWeek';
 
 const emptyForm: ClinicAssignmentInput = {
   studentId: '',
@@ -90,7 +91,7 @@ export function ClinicPage() {
             <tr key={assignment.id}>
               <td>{studentName(assignment.studentId)}</td>
               <td>
-                {assignment.dayOfWeek}요일 {assignment.startTime}-{assignment.endTime}
+                {formatDayOfWeek(assignment.dayOfWeek)} {assignment.startTime}-{assignment.endTime}
               </td>
               <td>
                 <button onClick={() => handleEdit(assignment)}>수정</button>
@@ -114,6 +115,26 @@ export function ClinicPage() {
             </option>
           ))}
         </select>
+        <select
+          value={form.dayOfWeek}
+          onChange={(e) => setForm({ ...form, dayOfWeek: Number(e.target.value) })}
+        >
+          {DAY_LABELS.map((label, day) => (
+            <option key={day} value={day}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <input
+          type="time"
+          value={form.startTime}
+          onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+        />
+        <input
+          type="time"
+          value={form.endTime}
+          onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+        />
         <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>

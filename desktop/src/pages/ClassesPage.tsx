@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Class, ClassInput } from '@theall/shared';
-import { classesApi } from '../api/client';
+import type { Class, ClassInput, Student } from '@theall/shared';
+import { classesApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
+import { formatDayOfWeek } from '../dayOfWeek';
+import { ScheduleSlotsEditor } from '../components/ScheduleSlotsEditor';
+import { StudentMultiSelect } from '../components/StudentMultiSelect';
 
 const emptyForm: ClassInput = {
   name: '',
@@ -12,6 +15,7 @@ const emptyForm: ClassInput = {
 
 export function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [form, setForm] = useState<ClassInput>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,8 +24,14 @@ export function ClassesPage() {
     classesApi.list().then(setClasses).catch((error: unknown) => logger.error(error));
   }, []);
 
+  const refreshStudents = useCallback(() => {
+    studentsApi.list().then(setStudents).catch((error: unknown) => logger.error(error));
+  }, []);
+
   useEffect(refresh, [refresh]);
+  useEffect(refreshStudents, [refreshStudents]);
   useLiveRefresh('classes', refresh);
+  useLiveRefresh('students', refreshStudents);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -87,7 +97,7 @@ export function ClassesPage() {
               <td>{klass.teacherName}</td>
               <td>
                 {klass.schedule
-                  .map((slot) => `${slot.dayOfWeek}요일 ${slot.startTime}-${slot.endTime}`)
+                  .map((slot) => `${formatDayOfWeek(slot.dayOfWeek)} ${slot.startTime}-${slot.endTime}`)
                   .join(', ')}
               </td>
               <td>
@@ -112,6 +122,18 @@ export function ClassesPage() {
           onChange={(e) => setForm({ ...form, teacherName: e.target.value })}
           required
         />
+        <div>
+          <p>요일/시간</p>
+          <ScheduleSlotsEditor slots={form.schedule} onChange={(schedule) => setForm({ ...form, schedule })} />
+        </div>
+        <div>
+          <p>수강생</p>
+          <StudentMultiSelect
+            students={students}
+            selectedIds={form.studentIds ?? []}
+            onChange={(studentIds) => setForm({ ...form, studentIds })}
+          />
+        </div>
         <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>

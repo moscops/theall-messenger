@@ -3,6 +3,7 @@ import type { Student, StudentInput } from '@theall/shared';
 import { studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
+import { StudentMultiSelect } from '../components/StudentMultiSelect';
 
 const emptyForm: StudentInput = { name: '' };
 
@@ -107,6 +108,38 @@ export function StudentsPage() {
           value={form.schoolName ?? ''}
           onChange={(e) => setForm({ ...form, schoolName: e.target.value })}
         />
+        <select
+          value={form.gender ?? ''}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              gender: e.target.value === '' ? undefined : (e.target.value as 'male' | 'female')
+            })
+          }
+        >
+          <option value="">성별 선택 안 함</option>
+          <option value="male">남</option>
+          <option value="female">여</option>
+        </select>
+        <input
+          placeholder="전화번호"
+          value={form.phone ?? ''}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+        />
+        <input
+          placeholder="학부모님 연락처"
+          value={form.parentPhone ?? ''}
+          onChange={(e) => setForm({ ...form, parentPhone: e.target.value })}
+        />
+        <div>
+          <p>형제자매</p>
+          <StudentMultiSelect
+            students={students}
+            selectedIds={form.siblingIds ?? []}
+            onChange={(siblingIds) => setForm({ ...form, siblingIds })}
+            excludeId={editingId ?? undefined}
+          />
+        </div>
         <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>
