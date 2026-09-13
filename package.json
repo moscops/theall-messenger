@@ -1,0 +1,9 @@
+{
+  "name": "theall-messenger-app",
+  "private": true,
+  "workspaces": ["shared", "server", "desktop"],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
