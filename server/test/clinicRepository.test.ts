@@ -33,4 +33,27 @@ describe('ClinicRepository', () => {
     const created = repo.create({ studentId, dayOfWeek: 3, startTime: '18:00', endTime: '19:00' });
     expect(repo.delete(created.id)).toBe(true);
   });
+
+  it('updates an assignment', () => {
+    const created = repo.create({ studentId, dayOfWeek: 3, startTime: '18:00', endTime: '19:00' });
+    const updated = repo.update(created.id, {
+      studentId,
+      dayOfWeek: 5,
+      startTime: '19:00',
+      endTime: '20:00'
+    });
+    expect(updated?.dayOfWeek).toBe(5);
+    expect(updated?.startTime).toBe('19:00');
+    expect(updated?.endTime).toBe('20:00');
+  });
+
+  it('returns undefined when updating a nonexistent assignment', () => {
+    const updated = repo.update('does-not-exist', {
+      studentId,
+      dayOfWeek: 5,
+      startTime: '19:00',
+      endTime: '20:00'
+    });
+    expect(updated).toBeUndefined();
+  });
 });
