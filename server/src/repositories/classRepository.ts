@@ -12,7 +12,9 @@ interface ClassRow {
 
 function loadSchedule(db: Database.Database, classId: string): ScheduleSlot[] {
   const rows = db
-    .prepare('SELECT id, day_of_week, start_time, end_time FROM class_schedule_slots WHERE class_id = ?')
+    .prepare(
+      'SELECT id, day_of_week, start_time, end_time FROM class_schedule_slots WHERE class_id = ? ORDER BY day_of_week, start_time'
+    )
     .all(classId) as { id: string; day_of_week: number; start_time: string; end_time: string }[];
   return rows.map((r) => ({
     id: r.id,

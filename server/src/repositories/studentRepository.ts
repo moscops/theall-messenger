@@ -107,6 +107,7 @@ export class StudentRepository {
       'INSERT OR IGNORE INTO student_siblings (student_id, sibling_id) VALUES (?, ?)'
     );
     for (const siblingId of siblingIds) {
+      if (siblingId === studentId) continue;
       insert.run(studentId, siblingId);
       insert.run(siblingId, studentId);
     }
