@@ -82,4 +82,84 @@ describe('StudentsPage', () => {
       })
     );
   });
+
+  it('renders customized columns: 학교 및 학년, 이름, 등원 시간대, 수업시간, 비고란, 관리', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      {
+        id: 's1',
+        name: '김민수',
+        schoolName: '신사중',
+        grade: '2학년',
+        siblingIds: [],
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+
+    render(<StudentsPage />);
+
+    const table = await screen.findByRole('table');
+    expect(within(table).getByText('학교 및 학년')).toBeInTheDocument();
+    expect(within(table).getByText('이름')).toBeInTheDocument();
+    expect(within(table).getByText('등원 시간대')).toBeInTheDocument();
+    expect(within(table).getByText('수업시간')).toBeInTheDocument();
+    expect(within(table).getByText('비고란')).toBeInTheDocument();
+    expect(within(table).getByText('관리')).toBeInTheDocument();
+
+    // Check student row values
+    expect(within(table).getByText('신사중 2학년')).toBeInTheDocument();
+    expect(within(table).getByText('김민수')).toBeInTheDocument();
+  });
+
+  it('renders schedule pattern filter tabs (전체, 월수금, 화목, 기타 / 예외, 미배정)', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      { id: 's1', name: '김민수', siblingIds: [], createdAt: '', updatedAt: '' }
+    ]);
+
+    render(<StudentsPage />);
+
+    const tabs = await screen.findByRole('tablist', { name: '등원 요일 패턴 필터' });
+    expect(within(tabs).getByText('전체')).toBeInTheDocument();
+    expect(within(tabs).getByText('월수금')).toBeInTheDocument();
+    expect(within(tabs).getByText('화목')).toBeInTheDocument();
+    expect(within(tabs).getByText('기타 / 예외')).toBeInTheDocument();
+    expect(within(tabs).getByText('미배정')).toBeInTheDocument();
+
+    // Clicking filter tab
+    await userEvent.click(within(tabs).getByText('화목'));
+    // Since s1 is unassigned, it should show empty state when filtering for tue_thu
+    expect(screen.getByText('조건에 일치하는 학생이 없습니다.')).toBeInTheDocument();
+
+    // Clicking '미배정' tab should show the student again
+    await userEvent.click(within(tabs).getByText('미배정'));
+    const table = await screen.findByRole('table');
+    expect(within(table).getByText('김민수')).toBeInTheDocument();
+  });
+
+  it('loads student data into form when clicking 수정', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      {
+        id: 's1',
+        name: '박수진',
+        schoolName: '압구정고',
+        grade: '1학년',
+        phone: '010-9999-8888',
+        siblingIds: [],
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+
+    render(<StudentsPage />);
+    const table = await screen.findByRole('table');
+    const editBtn = within(table).getByText('수정');
+    await userEvent.click(editBtn);
+
+    expect(screen.getByPlaceholderText('이름')).toHaveValue('박수진');
+    expect(screen.getByPlaceholderText('학교이름')).toHaveValue('압구정고');
+    expect(screen.getByPlaceholderText('학년/반')).toHaveValue('1학년');
+    expect(screen.getByPlaceholderText('전화번호')).toHaveValue('010-9999-8888');
+    expect(screen.getByText('수정 완료')).toBeInTheDocument();
+  });
 });
+
