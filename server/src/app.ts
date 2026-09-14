@@ -17,6 +17,9 @@ import { createAttendanceRouter } from './routes/attendance.js';
 import { createExceptionsRouter } from './routes/exceptions.js';
 import { createCommentsRouter } from './routes/comments.js';
 import { createHandoverNotesRouter } from './routes/handoverNotes.js';
+import { createCalendarRouter } from './routes/calendar.js';
+import { createExcelExportRouter } from './routes/excelExport.js';
+import { createPdfExportRouter } from './routes/pdfExport.js';
 import type { Broadcaster } from './broadcast.js';
 import { logger } from './logger.js';
 
@@ -45,10 +48,18 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
   );
   app.use(
     '/exceptions',
-    createExceptionsRouter(new ScheduleExceptionRepository(db), new ClassRepository(db), new ClinicRepository(db), broadcast)
+    createExceptionsRouter(
+      new ScheduleExceptionRepository(db),
+      new ClassRepository(db),
+      new ClinicRepository(db),
+      broadcast
+    )
   );
   app.use('/comments', createCommentsRouter(new StudentCommentRepository(db), broadcast));
   app.use('/handover-notes', createHandoverNotesRouter(new HandoverNoteRepository(db), broadcast));
+  app.use('/calendar', createCalendarRouter(db));
+  app.use('/export/excel', createExcelExportRouter(db));
+  app.use('/export/pdf', createPdfExportRouter(db));
 
   app.use((_req: Request, res: Response) => {
     const response: ApiResponse<never> = { success: false, error: 'not found' };
