@@ -5,8 +5,11 @@ import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { findOverdueEntries } from '../attendanceAlerts';
 
-const today = new Date().toISOString().slice(0, 10);
 const CHECK_INTERVAL_MS = 30_000;
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function currentTime(): string {
   const now = new Date();
@@ -25,7 +28,7 @@ export function AttendancePage() {
   const notifiedKeys = useRef(new Set<string>());
 
   const refresh = useCallback(() => {
-    attendanceApi.roster(today).then(setRoster).catch((error: unknown) => logger.error(error));
+    attendanceApi.roster(today()).then(setRoster).catch((error: unknown) => logger.error(error));
   }, []);
 
   const refreshConfig = useCallback(() => {
@@ -62,7 +65,7 @@ export function AttendancePage() {
 
   const handleCheckIn = async (studentId: string) => {
     try {
-      await attendanceApi.checkIn({ studentId, date: today, checkInTime: currentTime() });
+      await attendanceApi.checkIn({ studentId, date: today(), checkInTime: currentTime() });
       setError(null);
       refresh();
     } catch (err: unknown) {
@@ -87,7 +90,7 @@ export function AttendancePage() {
 
   return (
     <div>
-      <h2>출결 ({today})</h2>
+      <h2>출결 ({today()})</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <table>
         <thead>
