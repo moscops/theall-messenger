@@ -146,4 +146,47 @@ describe('computeRoster', () => {
       expect.objectContaining({ studentId: student.id, checkedIn: true, checkInTime: '15:55' })
     ]);
   });
+
+  it('only removes the targeted slot when a class has two same-weekday slots and the exception targets one specific slot', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [
+        { dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+        { dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+      ],
+      studentIds: [student.id]
+    });
+    const targetedSlotId = klass.schedule[0].id;
+    db.prepare(
+      `INSERT INTO schedule_exceptions (id, student_id, target_type, target_id, class_schedule_slot_id, exception_type, date, created_at, updated_at)
+       VALUES ('e1', ?, 'class', ?, ?, 'absence', ?, '', '')`
+    ).run(student.id, klass.id, targetedSlotId, MONDAY);
+
+    const roster = computeRoster(db, MONDAY);
+
+    expect(roster).toEqual([
+      expect.objectContaining({ studentId: student.id, startTime: '18:00', endTime: '19:30' })
+    ]);
+  });
+
+  it('removes every same-weekday slot of the class when the exception has no class_schedule_slot_id', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [
+        { dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+        { dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+      ],
+      studentIds: [student.id]
+    });
+    db.prepare(
+      `INSERT INTO schedule_exceptions (id, student_id, target_type, target_id, exception_type, date, created_at, updated_at)
+       VALUES ('e1', ?, 'class', ?, 'absence', ?, '', '')`
+    ).run(student.id, klass.id, MONDAY);
+
+    expect(computeRoster(db, MONDAY)).toEqual([]);
+  });
 });
