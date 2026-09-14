@@ -49,5 +49,8 @@ describe('HandoverNotesPage', () => {
         expect.objectContaining({ author: '조교A', content: '숙제 다 못 낸 학생 있음' })
       )
     );
+
+    expect(screen.getByPlaceholderText('내용')).toHaveValue('');
+    expect(screen.getByPlaceholderText('작성자')).toHaveValue('조교A');
   });
 });
