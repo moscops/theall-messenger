@@ -49,4 +49,16 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: '수업일정' }));
     expect(await screen.findByRole('heading', { name: '수업일정' })).toBeInTheDocument();
   });
+
+  it('renders custom window titlebar with minimize, maximize, close buttons and sidebar resizer', async () => {
+    render(<App />);
+
+    expect(screen.getByTestId('notion-titlebar')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('창 닫기').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByLabelText('창 최소화').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByLabelText('창 최대화').length).toBeGreaterThanOrEqual(1);
+
+    const resizer = screen.getByRole('separator');
+    expect(resizer).toHaveClass('sidebar-resizer');
+  });
 });

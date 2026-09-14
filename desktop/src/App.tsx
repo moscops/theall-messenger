@@ -9,6 +9,8 @@ import { HandoverNotesPage } from './pages/HandoverNotesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { WeeklySchedulePage } from './pages/WeeklySchedulePage';
+import { WindowHeader } from './components/WindowHeader';
+import { WindowResizeBorders } from './components/WindowResizeBorders';
 import {
   AttendanceIcon,
   CalendarIcon,
@@ -49,11 +51,51 @@ const TAB_TITLES: Record<Tab, string> = {
 
 export function App() {
   const [tab, setTab] = useState<Tab>('students');
+  const [sidebarWidth, setSidebarWidth] = useState(240);
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+
+  const handleSidebarResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingSidebar(true);
+
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const delta = moveEvent.clientX - startX;
+      const newWidth = Math.min(Math.max(startWidth + delta, 180), 420);
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingSidebar(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleSidebarReset = () => {
+    setSidebarWidth(240);
+  };
 
   return (
-    <div className="app-container">
-      {/* Notion Sidebar */}
-      <aside className="app-sidebar">
+    <div className="app-window-wrapper">
+      {/* Notion Window Custom Titlebar with Close / Minimize / Maximize */}
+      <WindowHeader title="TheAll Messenger" activeTabTitle={TAB_TITLES[tab]} />
+
+      {/* 8-Edge Window Resize Cursors */}
+      <WindowResizeBorders />
+
+      <div className="app-container">
+        {/* Notion Sidebar */}
+        <aside className="app-sidebar" style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}>
         {/* Workspace Brand */}
         <div className="workspace-header">
           <div className="workspace-avatar">TA</div>
@@ -161,6 +203,16 @@ export function App() {
         </div>
       </aside>
 
+      {/* Sidebar Splitter Resizer Handle with Col-Resize Cursor */}
+      <div
+        className={`sidebar-resizer ${isResizingSidebar ? 'is-resizing' : ''}`}
+        onMouseDown={handleSidebarResizeMouseDown}
+        onDoubleClick={handleSidebarReset}
+        title="드래그하여 사이드바 너비 조절 (더블클릭 시 기본 크기 복귀)"
+        role="separator"
+        aria-orientation="vertical"
+      />
+
       {/* Main Content Area */}
       <main className="app-main-content">
         <header className="top-header">
@@ -184,6 +236,7 @@ export function App() {
           {tab === 'handover' && <HandoverNotesPage />}
         </div>
       </main>
+    </div>
     </div>
   );
 }
