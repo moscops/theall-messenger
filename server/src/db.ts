@@ -96,6 +96,15 @@ export function createDb(filePath: string): Database.Database {
       enabled INTEGER NOT NULL,
       delay_minutes INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS handover_notes (
+      id TEXT PRIMARY KEY,
+      date TEXT NOT NULL,
+      author TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
   return db;
 }

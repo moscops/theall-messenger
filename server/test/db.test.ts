@@ -15,6 +15,7 @@ describe('createDb', () => {
       'class_schedule_slots',
       'classes',
       'clinic_assignments',
+      'handover_notes',
       'no_show_alert_config',
       'schedule_exceptions',
       'student_comments',
