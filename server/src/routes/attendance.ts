@@ -1,13 +1,22 @@
 import { Router } from 'express';
-import { attendanceLogInputSchema, type ApiResponse, type AttendanceLog, type RosterEntry } from '@theall/shared';
+import {
+  attendanceLogInputSchema,
+  noShowAlertConfigInputSchema,
+  type ApiResponse,
+  type AttendanceLog,
+  type RosterEntry,
+  type NoShowAlertConfig
+} from '@theall/shared';
 import type Database from 'better-sqlite3';
 import type { AttendanceRepository } from '../repositories/attendanceRepository.js';
+import type { NoShowAlertConfigRepository } from '../repositories/noShowAlertConfigRepository.js';
 import type { Broadcaster } from '../broadcast.js';
 import { computeRoster } from '../services/roster.js';
 
 export function createAttendanceRouter(
   db: Database.Database,
   repo: AttendanceRepository,
+  alertConfigRepo: NoShowAlertConfigRepository,
   broadcast: Broadcaster
 ): Router {
   const router = Router();
@@ -37,6 +46,24 @@ export function createAttendanceRouter(
     }
     const roster = computeRoster(db, date);
     const response: ApiResponse<RosterEntry[]> = { success: true, data: roster };
+    res.json(response);
+  });
+
+  router.get('/alert-config', (_req, res) => {
+    const response: ApiResponse<NoShowAlertConfig> = { success: true, data: alertConfigRepo.get() };
+    res.json(response);
+  });
+
+  router.put('/alert-config', (req, res) => {
+    const parsed = noShowAlertConfigInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const response: ApiResponse<never> = { success: false, error: parsed.error.message };
+      res.status(400).json(response);
+      return;
+    }
+    const config = alertConfigRepo.update(parsed.data);
+    broadcast('attendance');
+    const response: ApiResponse<NoShowAlertConfig> = { success: true, data: config };
     res.json(response);
   });
 

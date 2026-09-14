@@ -46,7 +46,6 @@ describe('GET /attendance/roster', () => {
         studentIds: [studentRes.body.data.id]
       });
 
-    // 2024-01-01 is a Monday.
     const res = await request(app).get('/attendance/roster?date=2024-01-01');
 
     expect(res.status).toBe(200);
@@ -58,6 +57,33 @@ describe('GET /attendance/roster', () => {
   it('rejects a missing date query param', async () => {
     const { app } = buildApp();
     const res = await request(app).get('/attendance/roster');
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('/attendance/alert-config', () => {
+  it('returns the default config when none has been set', async () => {
+    const { app } = buildApp();
+    const res = await request(app).get('/attendance/alert-config');
+    expect(res.body.data).toEqual({ enabled: false, delayMinutes: 10 });
+  });
+
+  it('updates the config and broadcasts the change', async () => {
+    const { app, broadcast } = buildApp();
+    const res = await request(app)
+      .put('/attendance/alert-config')
+      .send({ enabled: true, delayMinutes: 15 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual({ enabled: true, delayMinutes: 15 });
+    expect(broadcast).toHaveBeenCalledWith('attendance');
+  });
+
+  it('rejects a delay of 0 minutes', async () => {
+    const { app } = buildApp();
+    const res = await request(app)
+      .put('/attendance/alert-config')
+      .send({ enabled: true, delayMinutes: 0 });
     expect(res.status).toBe(400);
   });
 });
