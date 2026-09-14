@@ -162,4 +162,71 @@ describe('ExceptionsPage', () => {
     expect(input.newStartTime).toBeUndefined();
     expect(input.newEndTime).toBeUndefined();
   });
+
+  it('shows a slot picker only for a class with more than one schedule slot, and includes the chosen slot id on submit', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      { id: 's1', name: '김민준', siblingIds: [], createdAt: '', updatedAt: '' }
+    ]);
+    vi.mocked(classesApi.list).mockResolvedValue([
+      {
+        id: 'c1',
+        name: '중2 수학',
+        teacherName: '박선생',
+        schedule: [
+          { id: 'slot1', dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+          { id: 'slot2', dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+        ],
+        studentIds: [],
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 'c2',
+        name: '중3 영어',
+        teacherName: '이선생',
+        schedule: [{ id: 'slot3', dayOfWeek: 2, startTime: '17:00', endTime: '18:00' }],
+        studentIds: [],
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+    vi.mocked(clinicsApi.list).mockResolvedValue([]);
+    vi.mocked(exceptionsApi.list).mockResolvedValue([]);
+    vi.mocked(exceptionsApi.create).mockResolvedValue({
+      id: 'e1',
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      classScheduleSlotId: 'slot1',
+      exceptionType: 'absence',
+      date: '2026-09-15',
+      createdAt: '',
+      updatedAt: ''
+    });
+
+    render(<ExceptionsPage />);
+    await screen.findByText('중2 수학');
+
+    await userEvent.selectOptions(screen.getByDisplayValue('학생 선택'), 's1');
+
+    // Single-slot class: no slot picker.
+    const targetSelect = screen.getByDisplayValue('대상 선택');
+    await userEvent.selectOptions(targetSelect, 'c2');
+    expect(screen.queryByText('전체 시간대')).not.toBeInTheDocument();
+
+    // Multi-slot class: slot picker appears.
+    await userEvent.selectOptions(targetSelect, 'c1');
+    const slotSelect = screen.getByDisplayValue('전체 시간대');
+    await userEvent.selectOptions(slotSelect, 'slot1');
+
+    const dateInput = screen.getAllByDisplayValue('').find((el) => el.getAttribute('type') === 'date');
+    fireEvent.change(dateInput!, { target: { value: '2026-09-15' } });
+
+    const createCallsBefore = vi.mocked(exceptionsApi.create).mock.calls.length;
+    await userEvent.click(screen.getByText('추가'));
+
+    await waitFor(() => expect(exceptionsApi.create).toHaveBeenCalledTimes(createCallsBefore + 1));
+    const [input] = vi.mocked(exceptionsApi.create).mock.calls[createCallsBefore];
+    expect(input).toMatchObject({ targetId: 'c1', classScheduleSlotId: 'slot1' });
+  });
 });
