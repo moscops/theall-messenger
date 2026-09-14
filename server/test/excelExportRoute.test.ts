@@ -51,4 +51,17 @@ describe('GET /export/excel', () => {
     const res = await request(app).get('/export/excel');
     expect(res.status).toBe(400);
   });
+
+  it('returns a 500 ApiResponse instead of crashing when export generation fails', async () => {
+    const excelExportModule = await import('../src/services/excelExport.js');
+    const spy = vi.spyOn(excelExportModule, 'buildExcelBuffer').mockRejectedValueOnce(new Error('boom'));
+    try {
+      const { app } = buildApp();
+      const res = await request(app).get('/export/excel?from=2024-01-01&to=2024-01-01');
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });
