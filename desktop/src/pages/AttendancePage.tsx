@@ -8,7 +8,8 @@ import { findOverdueEntries } from '../attendanceAlerts';
 const CHECK_INTERVAL_MS = 30_000;
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
 function currentTime(): string {
@@ -23,7 +24,8 @@ function nowMinutes(): number {
 
 export function AttendancePage() {
   const [roster, setRoster] = useState<RosterEntry[]>([]);
-  const [alertConfig, setAlertConfig] = useState<NoShowAlertConfigInput>({ enabled: false, delayMinutes: 10 });
+  const [savedConfig, setSavedConfig] = useState<NoShowAlertConfigInput>({ enabled: false, delayMinutes: 10 });
+  const [draftConfig, setDraftConfig] = useState<NoShowAlertConfigInput>({ enabled: false, delayMinutes: 10 });
   const [error, setError] = useState<string | null>(null);
   const notifiedKeys = useRef(new Set<string>());
 
@@ -32,7 +34,13 @@ export function AttendancePage() {
   }, []);
 
   const refreshConfig = useCallback(() => {
-    alertConfigApi.get().then(setAlertConfig).catch((error: unknown) => logger.error(error));
+    alertConfigApi
+      .get()
+      .then((config) => {
+        setSavedConfig(config);
+        setDraftConfig(config);
+      })
+      .catch((error: unknown) => logger.error(error));
   }, []);
 
   useEffect(refresh, [refresh]);
@@ -47,12 +55,13 @@ export function AttendancePage() {
   }, []);
 
   useEffect(() => {
-    if (!alertConfig.enabled) return;
+    if (!savedConfig.enabled) return;
     const interval = setInterval(() => {
-      const overdue = findOverdueEntries(roster, nowMinutes(), alertConfig.delayMinutes);
+      const overdue = findOverdueEntries(roster, nowMinutes(), savedConfig.delayMinutes);
       for (const entry of overdue) {
-        if (notifiedKeys.current.has(entry.key)) continue;
-        notifiedKeys.current.add(entry.key);
+        const key = `${today()}:${entry.key}`;
+        if (notifiedKeys.current.has(key)) continue;
+        notifiedKeys.current.add(key);
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           new Notification('미출석 알림', {
             body: `${entry.studentName} - ${entry.label} (${entry.startTime})`
@@ -61,7 +70,11 @@ export function AttendancePage() {
       }
     }, CHECK_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [roster, alertConfig]);
+  }, [roster, savedConfig]);
+
+  useEffect(() => {
+    notifiedKeys.current.clear();
+  }, [savedConfig]);
 
   const handleCheckIn = async (studentId: string) => {
     try {
@@ -78,8 +91,9 @@ export function AttendancePage() {
   const handleConfigSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const updated = await alertConfigApi.update(alertConfig);
-      setAlertConfig(updated);
+      const updated = await alertConfigApi.update(draftConfig);
+      setSavedConfig(updated);
+      setDraftConfig(updated);
       setError(null);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'unknown error';
@@ -121,8 +135,8 @@ export function AttendancePage() {
         <label>
           <input
             type="checkbox"
-            checked={alertConfig.enabled}
-            onChange={(e) => setAlertConfig({ ...alertConfig, enabled: e.target.checked })}
+            checked={draftConfig.enabled}
+            onChange={(e) => setDraftConfig({ ...draftConfig, enabled: e.target.checked })}
           />
           알림 켜기
         </label>
@@ -130,8 +144,8 @@ export function AttendancePage() {
           type="number"
           min={1}
           max={120}
-          value={alertConfig.delayMinutes}
-          onChange={(e) => setAlertConfig({ ...alertConfig, delayMinutes: Number(e.target.value) })}
+          value={draftConfig.delayMinutes}
+          onChange={(e) => setDraftConfig({ ...draftConfig, delayMinutes: Number(e.target.value) })}
         />
         <button type="submit">저장</button>
       </form>
