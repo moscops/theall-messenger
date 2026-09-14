@@ -5,8 +5,9 @@ import { ClinicPage } from './pages/ClinicPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { ExceptionsPage } from './pages/ExceptionsPage';
 import { CommentsPage } from './pages/CommentsPage';
+import { HandoverNotesPage } from './pages/HandoverNotesPage';
 
-type Tab = 'students' | 'classes' | 'clinics' | 'attendance' | 'exceptions' | 'comments';
+type Tab = 'students' | 'classes' | 'clinics' | 'attendance' | 'exceptions' | 'comments' | 'handover';
 
 export function App() {
   const [tab, setTab] = useState<Tab>('students');
@@ -20,6 +21,7 @@ export function App() {
         <button onClick={() => setTab('attendance')}>출결</button>
         <button onClick={() => setTab('exceptions')}>일정 예외</button>
         <button onClick={() => setTab('comments')}>코멘트</button>
+        <button onClick={() => setTab('handover')}>인수인계</button>
       </nav>
       {tab === 'students' && <StudentsPage />}
       {tab === 'classes' && <ClassesPage />}
@@ -27,6 +29,7 @@ export function App() {
       {tab === 'attendance' && <AttendancePage />}
       {tab === 'exceptions' && <ExceptionsPage />}
       {tab === 'comments' && <CommentsPage />}
+      {tab === 'handover' && <HandoverNotesPage />}
     </div>
   );
 }

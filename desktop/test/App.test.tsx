@@ -10,7 +10,8 @@ vi.mock('../src/api/client', () => ({
   attendanceApi: { roster: vi.fn().mockResolvedValue([]), checkIn: vi.fn() },
   alertConfigApi: { get: vi.fn().mockResolvedValue({ enabled: false, delayMinutes: 10 }), update: vi.fn() },
   exceptionsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
-  commentsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() }
+  commentsApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  handoverNotesApi: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn(), remove: vi.fn() }
 }));
 
 describe('App', () => {
@@ -33,5 +34,12 @@ describe('App', () => {
 
     await userEvent.click(screen.getByRole('button', { name: '코멘트' }));
     expect(await screen.findByRole('heading', { name: '학생 코멘트' })).toBeInTheDocument();
+  });
+
+  it('switches to the handover notes tab', async () => {
+    render(<App />);
+
+    await userEvent.click(screen.getByRole('button', { name: '인수인계' }));
+    expect(await screen.findByRole('heading', { name: '인수인계 메모' })).toBeInTheDocument();
   });
 });
