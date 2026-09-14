@@ -41,7 +41,10 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
     '/attendance',
     createAttendanceRouter(db, new AttendanceRepository(db), new NoShowAlertConfigRepository(db), broadcast)
   );
-  app.use('/exceptions', createExceptionsRouter(new ScheduleExceptionRepository(db), broadcast));
+  app.use(
+    '/exceptions',
+    createExceptionsRouter(new ScheduleExceptionRepository(db), new ClassRepository(db), new ClinicRepository(db), broadcast)
+  );
   app.use('/comments', createCommentsRouter(new StudentCommentRepository(db), broadcast));
 
   app.use((_req: Request, res: Response) => {

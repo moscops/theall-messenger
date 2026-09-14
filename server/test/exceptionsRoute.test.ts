@@ -10,17 +10,29 @@ function buildApp() {
   return { app: createApp(db, broadcast), broadcast };
 }
 
+async function createClass(app: ReturnType<typeof createApp>): Promise<string> {
+  const res = await request(app)
+    .post('/classes')
+    .send({
+      name: '중2 수학',
+      teacherName: '김선생',
+      schedule: [{ dayOfWeek: 2, startTime: '16:00', endTime: '17:30' }]
+    });
+  return res.body.data.id;
+}
+
 describe('/exceptions', () => {
   it('creates and lists an exception, and broadcasts the change', async () => {
     const { app, broadcast } = buildApp();
     const studentRes = await request(app).post('/students').send({ name: '김민준' });
+    const classId = await createClass(app);
 
     const createRes = await request(app)
       .post('/exceptions')
       .send({
         studentId: studentRes.body.data.id,
         targetType: 'class',
-        targetId: 'c1',
+        targetId: classId,
         exceptionType: 'absence',
         date: '2026-09-15'
       });
@@ -33,13 +45,28 @@ describe('/exceptions', () => {
 
   it('rejects a reschedule with no new time information', async () => {
     const { app } = buildApp();
+    const classId = await createClass(app);
     const res = await request(app)
       .post('/exceptions')
       .send({
         studentId: 's1',
         targetType: 'class',
-        targetId: 'c1',
+        targetId: classId,
         exceptionType: 'reschedule',
+        date: '2026-09-15'
+      });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an exception whose targetId does not correspond to any real class', async () => {
+    const { app } = buildApp();
+    const res = await request(app)
+      .post('/exceptions')
+      .send({
+        studentId: 's1',
+        targetType: 'class',
+        targetId: 'does-not-exist',
+        exceptionType: 'absence',
         date: '2026-09-15'
       });
     expect(res.status).toBe(400);
@@ -47,12 +74,13 @@ describe('/exceptions', () => {
 
   it('returns 404 when updating a missing exception', async () => {
     const { app } = buildApp();
+    const classId = await createClass(app);
     const res = await request(app)
       .patch('/exceptions/does-not-exist')
       .send({
         studentId: 's1',
         targetType: 'class',
-        targetId: 'c1',
+        targetId: classId,
         exceptionType: 'absence',
         date: '2026-09-15'
       });
@@ -62,12 +90,13 @@ describe('/exceptions', () => {
   it('deletes an exception', async () => {
     const { app } = buildApp();
     const studentRes = await request(app).post('/students').send({ name: '김민준' });
+    const classId = await createClass(app);
     const createRes = await request(app)
       .post('/exceptions')
       .send({
         studentId: studentRes.body.data.id,
         targetType: 'class',
-        targetId: 'c1',
+        targetId: classId,
         exceptionType: 'absence',
         date: '2026-09-15'
       });

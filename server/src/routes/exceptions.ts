@@ -1,10 +1,21 @@
 import { Router } from 'express';
 import { scheduleExceptionInputSchema, type ApiResponse, type ScheduleException } from '@theall/shared';
 import type { ScheduleExceptionRepository } from '../repositories/scheduleExceptionRepository.js';
+import type { ClassRepository } from '../repositories/classRepository.js';
+import type { ClinicRepository } from '../repositories/clinicRepository.js';
 import type { Broadcaster } from '../broadcast.js';
 
-export function createExceptionsRouter(repo: ScheduleExceptionRepository, broadcast: Broadcaster): Router {
+export function createExceptionsRouter(
+  repo: ScheduleExceptionRepository,
+  classRepo: ClassRepository,
+  clinicRepo: ClinicRepository,
+  broadcast: Broadcaster
+): Router {
   const router = Router();
+
+  function targetExists(targetType: string, targetId: string): boolean {
+    return targetType === 'class' ? Boolean(classRepo.getById(targetId)) : Boolean(clinicRepo.getById(targetId));
+  }
 
   router.get('/', (_req, res) => {
     const response: ApiResponse<ScheduleException[]> = { success: true, data: repo.list() };
@@ -18,6 +29,11 @@ export function createExceptionsRouter(repo: ScheduleExceptionRepository, broadc
       res.status(400).json(response);
       return;
     }
+    if (!targetExists(parsed.data.targetType, parsed.data.targetId)) {
+      const response: ApiResponse<never> = { success: false, error: 'target not found' };
+      res.status(400).json(response);
+      return;
+    }
     const exception = repo.create(parsed.data);
     broadcast('attendance');
     const response: ApiResponse<ScheduleException> = { success: true, data: exception };
@@ -28,6 +44,11 @@ export function createExceptionsRouter(repo: ScheduleExceptionRepository, broadc
     const parsed = scheduleExceptionInputSchema.safeParse(req.body);
     if (!parsed.success) {
       const response: ApiResponse<never> = { success: false, error: parsed.error.message };
+      res.status(400).json(response);
+      return;
+    }
+    if (!targetExists(parsed.data.targetType, parsed.data.targetId)) {
+      const response: ApiResponse<never> = { success: false, error: 'target not found' };
       res.status(400).json(response);
       return;
     }

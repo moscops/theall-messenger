@@ -31,6 +31,14 @@ describe('POST /attendance/check-in', () => {
       .send({ studentId: 's1', date: 'not-a-date', checkInTime: '09:05' });
     expect(res.status).toBe(400);
   });
+
+  it('rejects a check-in for a well-formed but nonexistent studentId', async () => {
+    const { app } = buildApp();
+    const res = await request(app)
+      .post('/attendance/check-in')
+      .send({ studentId: 'does-not-exist', date: '2026-09-15', checkInTime: '09:05' });
+    expect(res.status).toBe(400);
+  });
 });
 
 describe('GET /attendance/roster', () => {

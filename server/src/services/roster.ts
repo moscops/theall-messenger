@@ -107,7 +107,7 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
     .prepare(
       `SELECT se.student_id, se.target_type, se.target_id, se.new_start_time, se.new_end_time,
               st.name as student_name,
-              CASE se.target_type WHEN 'class' THEN c.name ELSE '클리닉' END as label
+              CASE se.target_type WHEN 'class' THEN COALESCE(c.name, '(삭제된 수업)') ELSE '클리닉' END as label
        FROM schedule_exceptions se
        JOIN students st ON st.id = se.student_id
        LEFT JOIN classes c ON se.target_type = 'class' AND c.id = se.target_id
