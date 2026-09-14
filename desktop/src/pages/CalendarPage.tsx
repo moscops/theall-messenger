@@ -4,10 +4,7 @@ import { classesApi, clinicsApi, exceptionsApi, handoverNotesApi, studentsApi } 
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { DAY_LABELS } from '../dayOfWeek';
-import {
-  CalendarIcon,
-  CloseIcon
-} from '../components/icons';
+import { CalendarIcon, CloseIcon } from '../components/icons';
 
 interface DayEvent {
   id: string;
@@ -17,6 +14,17 @@ interface DayEvent {
   sub?: string;
 }
 
+type EventCategory = 'all' | 'class' | 'clinic' | 'absence' | 'makeup' | 'handover';
+
+const CATEGORY_ITEMS: Array<{ id: EventCategory; label: string; dotColor: string }> = [
+  { id: 'all', label: '전체 보기', dotColor: '#37352f' },
+  { id: 'class', label: '정규 수업', dotColor: '#2383e2' },
+  { id: 'clinic', label: '클리닉', dotColor: '#8b5cf6' },
+  { id: 'absence', label: '결석 예외', dotColor: '#ef4444' },
+  { id: 'makeup', label: '보충 / 변경', dotColor: '#f97316' },
+  { id: 'handover', label: '인수인계', dotColor: '#eab308' }
+];
+
 export function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [classes, setClasses] = useState<Class[]>([]);
@@ -25,6 +33,7 @@ export function CalendarPage() {
   const [notes, setNotes] = useState<HandoverNote[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<EventCategory>('all');
 
   const refresh = useCallback(() => {
     classesApi.list().then(setClasses).catch((err: unknown) => logger.error(err));
@@ -102,45 +111,52 @@ export function CalendarPage() {
     const events: DayEvent[] = [];
 
     // 1. Regular classes on this day of week
-    classes.forEach((cls) => {
-      cls.schedule
-        .filter((slot) => slot.dayOfWeek === dow)
-        .forEach((slot) => {
-          events.push({
-            id: `class-${cls.id}-${slot.startTime}`,
-            type: 'class',
-            title: cls.name,
-            time: `${slot.startTime}~${slot.endTime}`,
-            sub: `${cls.teacherName} (${cls.studentIds.length}명)`
+    if (activeCategory === 'all' || activeCategory === 'class') {
+      classes.forEach((cls) => {
+        cls.schedule
+          .filter((slot) => slot.dayOfWeek === dow)
+          .forEach((slot) => {
+            events.push({
+              id: `class-${cls.id}-${slot.startTime}`,
+              type: 'class',
+              title: cls.name,
+              time: `${slot.startTime}~${slot.endTime}`,
+              sub: `${cls.teacherName} (${cls.studentIds.length}명)`
+            });
           });
-        });
-    });
+      });
+    }
 
     // 2. Regular clinics on this day of week
-    clinics
-      .filter((clinic) => clinic.dayOfWeek === dow)
-      .forEach((clinic) => {
-        events.push({
-          id: `clinic-${clinic.id}-${clinic.startTime}`,
-          type: 'clinic',
-          title: `클리닉 (${studentName(clinic.studentId)})`,
-          time: `${clinic.startTime}~${clinic.endTime}`
+    if (activeCategory === 'all' || activeCategory === 'clinic') {
+      clinics
+        .filter((clinic) => clinic.dayOfWeek === dow)
+        .forEach((clinic) => {
+          events.push({
+            id: `clinic-${clinic.id}-${clinic.startTime}`,
+            type: 'clinic',
+            title: `클리닉 (${studentName(clinic.studentId)})`,
+            time: `${clinic.startTime}~${clinic.endTime}`
+          });
         });
-      });
+    }
 
     // 3. Exceptions for this date
     exceptions
       .filter((ex) => ex.date === dateStr || ex.newDate === dateStr)
       .forEach((ex) => {
         if (ex.date === dateStr) {
-          if (ex.exceptionType === 'absence') {
+          if (ex.exceptionType === 'absence' && (activeCategory === 'all' || activeCategory === 'absence')) {
             events.push({
               id: `ex-${ex.id}`,
               type: 'absence',
               title: `결석: ${studentName(ex.studentId)}`,
               sub: ex.reason
             });
-          } else if (ex.exceptionType === 'reschedule') {
+          } else if (
+            ex.exceptionType === 'reschedule' &&
+            (activeCategory === 'all' || activeCategory === 'makeup')
+          ) {
             events.push({
               id: `ex-${ex.id}`,
               type: 'reschedule',
@@ -150,7 +166,11 @@ export function CalendarPage() {
             });
           }
         }
-        if (ex.newDate === dateStr && (ex.exceptionType === 'makeup' || ex.exceptionType === 'reschedule')) {
+        if (
+          ex.newDate === dateStr &&
+          (ex.exceptionType === 'makeup' || ex.exceptionType === 'reschedule') &&
+          (activeCategory === 'all' || activeCategory === 'makeup')
+        ) {
           events.push({
             id: `makeup-${ex.id}`,
             type: 'makeup',
@@ -162,16 +182,18 @@ export function CalendarPage() {
       });
 
     // 4. Handover notes for this date
-    notes
-      .filter((n) => n.date === dateStr)
-      .forEach((n) => {
-        events.push({
-          id: `note-${n.id}`,
-          type: 'handover',
-          title: `메모 (${n.author})`,
-          sub: n.content
+    if (activeCategory === 'all' || activeCategory === 'handover') {
+      notes
+        .filter((n) => n.date === dateStr)
+        .forEach((n) => {
+          events.push({
+            id: `note-${n.id}`,
+            type: 'handover',
+            title: `메모 (${n.author})`,
+            sub: n.content
+          });
         });
-      });
+    }
 
     return events;
   };
@@ -201,13 +223,21 @@ export function CalendarPage() {
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="calendar-legend">
-          <span className="legend-item"><span className="dot blue"></span> 수업</span>
-          <span className="legend-item"><span className="dot purple"></span> 클리닉</span>
-          <span className="legend-item"><span className="dot red"></span> 결석예외</span>
-          <span className="legend-item"><span className="dot orange"></span> 보충일정</span>
-          <span className="legend-item"><span className="dot yellow"></span> 인수인계</span>
+        {/* Category Filters Bar */}
+        <div className="calendar-category-filters">
+          {CATEGORY_ITEMS.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              className={`cat-filter-chip ${activeCategory === cat.id ? 'active' : ''}`}
+              onClick={() => setActiveCategory(cat.id)}
+            >
+              {cat.id !== 'all' && (
+                <span className="filter-dot" style={{ backgroundColor: cat.dotColor }}></span>
+              )}
+              <span>{cat.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 

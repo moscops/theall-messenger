@@ -8,11 +8,13 @@ import { CommentsPage } from './pages/CommentsPage';
 import { HandoverNotesPage } from './pages/HandoverNotesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
+import { WeeklySchedulePage } from './pages/WeeklySchedulePage';
 import {
   AttendanceIcon,
   CalendarIcon,
   ClassIcon,
   ClinicIcon,
+  ClockIcon,
   CommentIcon,
   ExceptionIcon,
   HandoverIcon,
@@ -23,6 +25,7 @@ import {
 type Tab =
   | 'dashboard'
   | 'calendar'
+  | 'schedule'
   | 'students'
   | 'classes'
   | 'clinics'
@@ -34,6 +37,7 @@ type Tab =
 const TAB_TITLES: Record<Tab, string> = {
   dashboard: '종합 대시보드',
   calendar: '통합 캘린더',
+  schedule: '수업일정',
   students: '학생 관리',
   classes: '수업 관리',
   clinics: '클리닉 배정',
@@ -77,6 +81,14 @@ export function App() {
           >
             <CalendarIcon size={16} className="nav-icon" />
             <span>통합 캘린더</span>
+          </button>
+          <button
+            type="button"
+            className={`nav-tab-btn ${tab === 'schedule' ? 'active' : ''}`}
+            onClick={() => setTab('schedule')}
+          >
+            <ClockIcon size={16} className="nav-icon" />
+            <span>수업일정</span>
           </button>
         </div>
 
@@ -162,6 +174,7 @@ export function App() {
         <div className="page-content">
           {tab === 'dashboard' && <DashboardPage onNavigateTab={(t) => setTab(t as Tab)} />}
           {tab === 'calendar' && <CalendarPage />}
+          {tab === 'schedule' && <WeeklySchedulePage />}
           {tab === 'students' && <StudentsPage />}
           {tab === 'classes' && <ClassesPage />}
           {tab === 'clinics' && <ClinicPage />}

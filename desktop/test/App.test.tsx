@@ -42,4 +42,11 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: '인수인계' }));
     expect(await screen.findByRole('heading', { name: '인수인계 메모' })).toBeInTheDocument();
   });
+
+  it('switches to the schedule (수업일정) tab', async () => {
+    render(<App />);
+
+    await userEvent.click(screen.getByRole('button', { name: '수업일정' }));
+    expect(await screen.findByRole('heading', { name: '수업일정' })).toBeInTheDocument();
+  });
 });

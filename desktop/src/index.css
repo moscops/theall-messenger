@@ -1231,6 +1231,50 @@ td > button:hover,
   font-weight: 600;
 }
 
+.calendar-category-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cat-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  box-shadow: none;
+}
+
+.cat-filter-chip:hover {
+  background: #f7f7f5;
+  color: var(--text-main);
+  border-color: var(--border-dark);
+}
+
+.cat-filter-chip.active {
+  background: #f0f0ee;
+  color: var(--text-main);
+  font-weight: 600;
+  border-color: #d0d0ce;
+}
+
+.filter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 .calendar-legend {
   display: flex;
   gap: 12px;
@@ -1554,3 +1598,364 @@ ul li button:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.24);
 }
+
+/* ==========================================================================
+   Notion Weekly Schedule Page (수업일정)
+   ========================================================================== */
+
+.notion-weekly-schedule-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.schedule-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.schedule-page-header h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.schedule-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.schedule-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  width: 260px;
+  box-shadow: var(--shadow-subtle);
+  transition: border-color 0.15s ease;
+}
+
+.schedule-search-box:focus-within {
+  border-color: #2383e2;
+  box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.15);
+}
+
+.schedule-search-box .search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.schedule-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  color: var(--text-main);
+  padding: 0;
+}
+
+.schedule-search-box input::placeholder {
+  color: var(--text-muted);
+}
+
+.schedule-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.day-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.day-tab-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.12s ease;
+}
+
+.day-tab-btn:hover {
+  background: #f0f0ee;
+  color: var(--text-main);
+}
+
+.day-tab-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-subtle);
+}
+
+.type-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.type-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.12s ease;
+}
+
+.type-filter-chip:hover {
+  background: #f7f7f5;
+  color: var(--text-main);
+}
+
+.type-filter-chip.active {
+  background: #37352f;
+  color: #ffffff;
+  border-color: #37352f;
+  font-weight: 600;
+}
+
+.schedule-columns-grid {
+  display: grid;
+  gap: 12px;
+  flex: 1;
+  align-items: start;
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+
+.schedule-columns-grid.seven-cols {
+  grid-template-columns: repeat(7, minmax(200px, 1fr));
+}
+
+.schedule-columns-grid.single-col {
+  grid-template-columns: minmax(360px, 800px);
+  justify-content: flex-start;
+}
+
+.schedule-day-column {
+  background: #fafaf9;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+}
+
+.day-column-header {
+  padding: 10px 12px;
+  background: #f3f3f1;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.day-column-header .day-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.day-column-header .count-badge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: #e8e8e6;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.day-column-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.empty-day-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+.schedule-block-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.schedule-block-card:hover {
+  box-shadow: var(--shadow-card);
+  border-color: var(--border-dark);
+}
+
+.schedule-block-card.class {
+  border-left: 3px solid #2383e2;
+}
+
+.schedule-block-card.clinic {
+  border-left: 3px solid #8b5cf6;
+}
+
+.schedule-block-card.highlighted {
+  outline: 2px solid #2383e2;
+  box-shadow: 0 0 8px rgba(35, 131, 226, 0.25);
+  background: #fbfdff;
+}
+
+.block-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.block-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.block-badge.class {
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-text);
+  border: 1px solid var(--tag-blue-border);
+}
+
+.block-badge.clinic {
+  background: var(--tag-purple-bg);
+  color: var(--tag-purple-text);
+  border: 1px solid var(--tag-purple-border);
+}
+
+.block-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.block-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.block-teacher {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.student-count-pill {
+  font-size: 11px;
+  font-weight: 600;
+  background: #f0f0ee;
+  color: var(--text-secondary);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.block-students-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.students-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.students-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.no-students {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.student-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #f7f7f5;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.12s ease;
+}
+
+.student-chip-btn:hover {
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-text);
+  border-color: var(--tag-blue-border);
+}
+
+.student-chip-btn.search-hit {
+  background: #fef08a;
+  color: #713f12;
+  border-color: #facc15;
+  font-weight: 700;
+}
+
