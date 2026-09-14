@@ -3,19 +3,15 @@ import type { HandoverNote, HandoverNoteInput } from '@theall/shared';
 import { handoverNotesApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
-
-function today(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
+import { todayLocal } from '../date';
 
 function emptyForm(): HandoverNoteInput {
-  return { date: today(), author: '', content: '' };
+  return { date: todayLocal(), author: '', content: '' };
 }
 
 export function HandoverNotesPage() {
   const [notes, setNotes] = useState<HandoverNote[]>([]);
-  const [form, setForm] = useState<HandoverNoteInput>(emptyForm());
+  const [form, setForm] = useState<HandoverNoteInput>(emptyForm);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {

@@ -4,13 +4,9 @@ import { alertConfigApi, attendanceApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { findOverdueEntries } from '../attendanceAlerts';
+import { todayLocal } from '../date';
 
 const CHECK_INTERVAL_MS = 30_000;
-
-function today(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
 
 function currentTime(): string {
   const now = new Date();
@@ -30,7 +26,7 @@ export function AttendancePage() {
   const notifiedKeys = useRef(new Set<string>());
 
   const refresh = useCallback(() => {
-    attendanceApi.roster(today()).then(setRoster).catch((error: unknown) => logger.error(error));
+    attendanceApi.roster(todayLocal()).then(setRoster).catch((error: unknown) => logger.error(error));
   }, []);
 
   const refreshConfig = useCallback(() => {
@@ -59,7 +55,7 @@ export function AttendancePage() {
     const interval = setInterval(() => {
       const overdue = findOverdueEntries(roster, nowMinutes(), savedConfig.delayMinutes);
       for (const entry of overdue) {
-        const key = `${today()}:${entry.key}`;
+        const key = `${todayLocal()}:${entry.key}`;
         if (notifiedKeys.current.has(key)) continue;
         notifiedKeys.current.add(key);
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
@@ -78,7 +74,7 @@ export function AttendancePage() {
 
   const handleCheckIn = async (studentId: string) => {
     try {
-      await attendanceApi.checkIn({ studentId, date: today(), checkInTime: currentTime() });
+      await attendanceApi.checkIn({ studentId, date: todayLocal(), checkInTime: currentTime() });
       setError(null);
       refresh();
     } catch (err: unknown) {
@@ -104,7 +100,7 @@ export function AttendancePage() {
 
   return (
     <div>
-      <h2>출결 ({today()})</h2>
+      <h2>출결 ({todayLocal()})</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <table>
         <thead>

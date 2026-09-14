@@ -9,7 +9,7 @@ vi.mock('../src/api/client', () => ({
 }));
 
 describe('HandoverNotesPage', () => {
-  it('lists existing notes, most recent date first', async () => {
+  it('lists existing notes', async () => {
     vi.mocked(handoverNotesApi.list).mockResolvedValue([
       {
         id: 'h1',
