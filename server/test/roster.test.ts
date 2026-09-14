@@ -109,6 +109,26 @@ describe('computeRoster', () => {
     ]);
   });
 
+  it('adds a makeup session whose new_date is unset, matching real API-created rows', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [{ dayOfWeek: 1, startTime: '16:00', endTime: '17:30' }],
+      studentIds: [student.id]
+    });
+    const MAKEUP_DATE = '2024-01-02';
+    db.prepare(
+      `INSERT INTO schedule_exceptions
+       (id, student_id, target_type, target_id, exception_type, date, new_start_time, new_end_time, created_at, updated_at)
+       VALUES ('e2', ?, 'class', ?, 'makeup', ?, '15:00', '16:00', '', '')`
+    ).run(student.id, klass.id, MAKEUP_DATE);
+
+    expect(computeRoster(db, MAKEUP_DATE)).toContainEqual(
+      expect.objectContaining({ studentId: student.id, startTime: '15:00', endTime: '16:00', label: '중2 수학' })
+    );
+  });
+
   it('marks a student checked in with their check-in time', () => {
     const student = students.create({ name: '김민준' });
     classes.create({

@@ -111,7 +111,7 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
        FROM schedule_exceptions se
        JOIN students st ON st.id = se.student_id
        LEFT JOIN classes c ON se.target_type = 'class' AND c.id = se.target_id
-       WHERE se.new_date = ? AND se.exception_type IN ('reschedule', 'makeup')`
+       WHERE COALESCE(se.new_date, se.date) = ? AND se.exception_type IN ('reschedule', 'makeup')`
     )
     .all(date) as ExceptionInRow[];
 
