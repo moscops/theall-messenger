@@ -17,6 +17,7 @@ import { createAttendanceRouter } from './routes/attendance.js';
 import { createExceptionsRouter } from './routes/exceptions.js';
 import { createCommentsRouter } from './routes/comments.js';
 import { createHandoverNotesRouter } from './routes/handoverNotes.js';
+import { createCalendarRouter } from './routes/calendar.js';
 import type { Broadcaster } from './broadcast.js';
 import { logger } from './logger.js';
 
@@ -49,6 +50,7 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
   );
   app.use('/comments', createCommentsRouter(new StudentCommentRepository(db), broadcast));
   app.use('/handover-notes', createHandoverNotesRouter(new HandoverNoteRepository(db), broadcast));
+  app.use('/calendar', createCalendarRouter(db));
 
   app.use((_req: Request, res: Response) => {
     const response: ApiResponse<never> = { success: false, error: 'not found' };
