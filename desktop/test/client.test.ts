@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { studentsApi, classesApi, clinicsApi, attendanceApi, alertConfigApi, exceptionsApi, commentsApi } from '../src/api/client';
+import { studentsApi, classesApi, clinicsApi, attendanceApi, alertConfigApi, exceptionsApi, commentsApi, handoverNotesApi } from '../src/api/client';
 
 function mockFetchOnce(body: unknown) {
   const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
@@ -190,6 +190,19 @@ describe('commentsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       'http://localhost:4000/comments',
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+});
+
+describe('handoverNotesApi', () => {
+  it('sends a POST with the correct body on create()', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: { id: 'h1' } });
+
+    await handoverNotesApi.create({ date: '2026-09-15', author: '조교A', content: '내용' });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/handover-notes',
       expect.objectContaining({ method: 'POST' })
     );
   });

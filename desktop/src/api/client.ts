@@ -14,7 +14,9 @@ import type {
   ScheduleException,
   ScheduleExceptionInput,
   StudentComment,
-  StudentCommentInput
+  StudentCommentInput,
+  HandoverNote,
+  HandoverNoteInput
 } from '@theall/shared';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
@@ -86,4 +88,13 @@ export const commentsApi = {
   update: (id: string, input: StudentCommentInput) =>
     request<StudentComment>(`/comments/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<null>(`/comments/${id}`, { method: 'DELETE' })
+};
+
+export const handoverNotesApi = {
+  list: () => request<HandoverNote[]>('/handover-notes'),
+  create: (input: HandoverNoteInput) =>
+    request<HandoverNote>('/handover-notes', { method: 'POST', body: JSON.stringify(input) }),
+  update: (id: string, input: HandoverNoteInput) =>
+    request<HandoverNote>(`/handover-notes/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  remove: (id: string) => request<null>(`/handover-notes/${id}`, { method: 'DELETE' })
 };
