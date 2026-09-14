@@ -44,4 +44,22 @@ describe('WindowHeader', () => {
 
     delete window.electronAPI;
   });
+
+  it('renders restore button when isMaximized is true and triggers onMaximizeToggle', async () => {
+    const handleToggle = vi.fn();
+    render(
+      <WindowHeader
+        title="TheAll Messenger"
+        activeTabTitle="학생 관리"
+        isMaximized={true}
+        onMaximizeToggle={handleToggle}
+      />
+    );
+
+    const restoreBtn = screen.getByLabelText('창 복원');
+    expect(restoreBtn).toBeInTheDocument();
+
+    await userEvent.click(restoreBtn);
+    expect(handleToggle).toHaveBeenCalled();
+  });
 });

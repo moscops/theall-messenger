@@ -36,7 +36,9 @@ describe('StudentsPage', () => {
     render(<StudentsPage />);
 
     const table = await screen.findByRole('table');
-    expect(within(table).getByText('김민준')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(table).getByText('김민준')).toBeInTheDocument();
+    });
   });
 
   it('submits the form to create a student', async () => {

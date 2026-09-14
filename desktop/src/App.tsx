@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StudentsPage } from './pages/StudentsPage';
 import { ClassesPage } from './pages/ClassesPage';
 import { ClinicPage } from './pages/ClinicPage';
@@ -53,6 +53,27 @@ export function App() {
   const [tab, setTab] = useState<Tab>('students');
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  useEffect(() => {
+    if (window.electronAPI) {
+      window.electronAPI.isMaximized().then(setIsMaximized).catch(() => {});
+      if (typeof window.electronAPI.onMaximizedChange === 'function') {
+        const cleanup = window.electronAPI.onMaximizedChange((maximized) => {
+          setIsMaximized(maximized);
+        });
+        return cleanup;
+      }
+    }
+  }, []);
+
+  const handleMaximizeToggle = () => {
+    if (window.electronAPI) {
+      window.electronAPI.maximize();
+    } else {
+      setIsMaximized((prev) => !prev);
+    }
+  };
 
   const handleSidebarResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -86,12 +107,17 @@ export function App() {
   };
 
   return (
-    <div className="app-window-wrapper">
+    <div className={`app-window-wrapper ${isMaximized ? 'is-maximized' : 'is-windowed'}`}>
       {/* Notion Window Custom Titlebar with Close / Minimize / Maximize */}
-      <WindowHeader title="TheAll Messenger" activeTabTitle={TAB_TITLES[tab]} />
+      <WindowHeader
+        title="TheAll Messenger"
+        activeTabTitle={TAB_TITLES[tab]}
+        isMaximized={isMaximized}
+        onMaximizeToggle={handleMaximizeToggle}
+      />
 
-      {/* 8-Edge Window Resize Cursors */}
-      <WindowResizeBorders />
+      {/* 8-Edge Window Resize Cursors (Windowed mode only) */}
+      {!isMaximized && <WindowResizeBorders />}
 
       <div className="app-container">
         {/* Notion Sidebar */}

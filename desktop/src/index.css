@@ -2646,12 +2646,29 @@ ul li button:hover {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
   position: relative;
   background: var(--bg-canvas);
+  box-sizing: border-box;
+  transition: border-radius 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Custom Titlebar */
+/* Windowed Mode (Not Maximized / Fullscreen): Rounded Corners & Notion Depth Shadow */
+.app-window-wrapper.is-windowed {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(55, 53, 47, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Maximized Mode: Seamless flush with monitor borders, sharp edges */
+.app-window-wrapper.is-maximized {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* Custom Titlebar (Windows Notion Style) */
 .notion-titlebar {
   display: flex;
   align-items: center;
@@ -2660,84 +2677,31 @@ ul li button:hover {
   min-height: 38px;
   background: #f7f6f3;
   border-bottom: 1px solid var(--border-color);
-  padding: 0 12px;
+  padding: 0 0 0 12px;
   user-select: none;
   -webkit-app-region: drag;
   z-index: 1000;
 }
 
-/* macOS-style Traffic Lights */
-.window-traffic-lights {
+/* Titlebar Left Brand & Workspace Title */
+.titlebar-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  -webkit-app-region: no-drag;
+  -webkit-app-region: drag;
 }
 
-.traffic-btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease, filter 0.15s ease;
-  position: relative;
-  outline: none;
-}
-
-.traffic-btn .traffic-symbol {
-  width: 8px;
-  height: 8px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.window-traffic-lights:hover .traffic-btn .traffic-symbol {
-  opacity: 0.8;
-}
-
-.traffic-btn.traffic-close {
-  background: #ff5f56;
-  border: 1px solid #e0443e;
-  color: #4c0002;
-}
-
-.traffic-btn.traffic-minimize {
-  background: #ffbd2e;
-  border: 1px solid #dea123;
-  color: #5d3d00;
-}
-
-.traffic-btn.traffic-maximize {
-  background: #27c93f;
-  border: 1px solid #1aab29;
-  color: #004d11;
-}
-
-.traffic-btn:hover {
-  filter: brightness(0.95);
-  transform: scale(1.08);
-}
-
-.traffic-btn:active {
-  filter: brightness(0.85);
-  transform: scale(0.96);
-}
-
-/* Titlebar Center Title & Breadcrumb */
-.titlebar-center {
+.titlebar-brand {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 12.5px;
+}
+
+.titlebar-app-title {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-weight: 500;
   letter-spacing: -0.01em;
-  pointer-events: none;
 }
 
 .app-badge-pill {
@@ -2748,6 +2712,22 @@ ul li button:hover {
   color: var(--text-main);
   padding: 1px 6px;
   border-radius: 10px;
+}
+
+/* Titlebar Center Title & Breadcrumb */
+.titlebar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag;
+  cursor: default;
 }
 
 .titlebar-text {
@@ -2764,27 +2744,32 @@ ul li button:hover {
   font-weight: 600;
 }
 
-/* Windows/Notion Style Controls (Right Side) */
+/* Windows Native Style Controls (Right Side - Large, Clickable 46x38px) */
 .window-action-controls {
   display: flex;
   align-items: center;
-  gap: 2px;
+  height: 100%;
+  margin-left: auto;
   -webkit-app-region: no-drag;
+  z-index: 10001;
+  position: relative;
 }
 
 .win-control-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 26px;
+  width: 46px;
+  height: 38px;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.12s ease, color 0.12s ease;
   outline: none;
+  padding: 0;
+  -webkit-app-region: no-drag;
 }
 
 .win-control-btn:hover {
@@ -2792,13 +2777,18 @@ ul li button:hover {
   color: var(--text-main);
 }
 
+.win-control-btn:active {
+  background: rgba(55, 53, 47, 0.15);
+}
+
 .win-control-btn.win-btn-close:hover {
   background: #e81123;
   color: #ffffff;
 }
 
-.win-control-btn:active {
-  transform: scale(0.94);
+.win-control-btn.win-btn-close:active {
+  background: #bf0f1d;
+  color: #ffffff;
 }
 
 /* ==========================================================================
@@ -2858,7 +2848,7 @@ ul li button:hover {
 .resize-edge-top {
   top: 0;
   left: 6px;
-  right: 6px;
+  right: 146px;
   height: 5px;
   cursor: ns-resize;
 }
