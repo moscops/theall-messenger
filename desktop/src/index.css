@@ -1,147 +1,622 @@
+/* ==========================================================================
+   TheAll Messenger — Notion Style Design System
+   ========================================================================== */
+
+:root {
+  /* Surface & Background */
+  --bg-canvas: #ffffff;
+  --bg-sidebar: #f7f6f3;
+  --bg-sidebar-hover: #eceae5;
+  --bg-sidebar-active: #e3e2de;
+  --bg-subtle: #fbfbfa;
+  --bg-card: #ffffff;
+
+  /* Borders & Dividers */
+  --border-color: #ececeb;
+  --border-dark: #dfdfde;
+  --border-divider: #f1f1ef;
+  --border-focus: #2383e2;
+
+  /* Text & Icons */
+  --text-main: #37352f;
+  --text-secondary: #787774;
+  --text-muted: #9b9a97;
+  --text-link: #2383e2;
+
+  /* Notion-style Pastel Semantic Badges */
+  --tag-green-bg: #edf7ed;
+  --tag-green-text: #1e7e34;
+  --tag-green-border: #d2ecce;
+
+  --tag-red-bg: #fde8e8;
+  --tag-red-text: #c81e1e;
+  --tag-red-border: #f8b4b4;
+
+  --tag-blue-bg: #e8f2ff;
+  --tag-blue-text: #1a56db;
+  --tag-blue-border: #c3ddfd;
+
+  --tag-orange-bg: #fff4e5;
+  --tag-orange-text: #b43403;
+  --tag-orange-border: #fed7aa;
+
+  --tag-purple-bg: #f3e8ff;
+  --tag-purple-text: #6c2bd9;
+  --tag-purple-border: #e9d5ff;
+
+  --tag-yellow-bg: #fef9c3;
+  --tag-yellow-text: #854d0e;
+  --tag-yellow-border: #fef08a;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* Base Reset & Native Desktop UX */
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
+  height: 100%;
   margin: 0;
-  font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  background: #f5f6f8;
-  color: #1f2328;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-canvas);
+  color: var(--text-main);
+  user-select: none;
+}
+
+/* Allow text selection in readable contents & forms */
+input,
+textarea,
+td,
+p,
+li,
+label,
+span {
+  user-select: text;
 }
 
 #root {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 24px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-h2 {
-  margin: 0 0 16px;
-  font-size: 1.25rem;
+/* ==========================================================================
+   App Shell (Sidebar + Main Content Viewport)
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.app-sidebar {
+  width: 230px;
+  min-width: 230px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 10px;
+  gap: 4px;
+}
+
+.workspace-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+
+.workspace-avatar {
+  width: 32px;
+  height: 32px;
+  background: #2383e2;
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 2px rgba(35, 131, 226, 0.25);
+}
+
+.workspace-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.workspace-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 8px 10px 4px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav button,
+.nav-tab-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sidebar-nav button:hover,
+.nav-tab-btn:hover {
+  background: var(--bg-sidebar-hover);
+}
+
+.sidebar-nav button.active,
+.nav-tab-btn.active {
+  background: var(--bg-sidebar-active);
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Notion Emoji Icons via data-tab attribute */
+.sidebar-nav button[data-tab='students']::before {
+  content: '🎓';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='classes']::before {
+  content: '📚';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='clinics']::before {
+  content: '🔬';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='attendance']::before {
+  content: '⏱️';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='exceptions']::before {
+  content: '🗓️';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='comments']::before {
+  content: '💬';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-nav button[data-tab='handover']::before {
+  content: '📝';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 10px 8px 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2ea043;
+  box-shadow: 0 0 0 2px rgba(46, 160, 67, 0.2);
+}
+
+/* Main Area */
+.app-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-canvas);
+}
+
+.top-header {
+  height: 46px;
+  min-height: 46px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.crumb-sep {
+  color: var(--text-muted);
+}
+
+.crumb-current {
+  color: var(--text-main);
   font-weight: 600;
 }
 
-nav {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #d8dbe0;
-  padding-bottom: 8px;
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 40px 60px;
+  max-width: 1080px;
+  width: 100%;
 }
 
-nav button {
-  border: none;
-  background: transparent;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  color: #444;
+/* ==========================================================================
+   Typography & Notion Heading
+   ========================================================================== */
+
+h2 {
+  margin: 0 0 20px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
 }
 
-nav button:hover {
-  background: #e8eaed;
-}
+/* ==========================================================================
+   Notion Database Table View
+   ========================================================================== */
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: #fff;
-  border: 1px solid #e2e4e8;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-subtle);
 }
 
 th,
 td {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid #eceef1;
-  font-size: 0.9rem;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-divider);
+  font-size: 13.5px;
 }
 
 th {
-  background: #fafbfc;
+  background: var(--bg-subtle);
   font-weight: 600;
-  color: #57606a;
+  color: var(--text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border-color);
 }
 
 tr:last-child td {
   border-bottom: none;
 }
 
+tr:hover td {
+  background: #fafaf9;
+}
+
+/* ==========================================================================
+   Forms & Controls
+   ========================================================================== */
+
 form {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  background: #fff;
-  border: 1px solid #e2e4e8;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 14px;
-  margin-bottom: 16px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+form > p {
+  width: 100%;
+  margin: 0 0 4px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 input,
-select {
-  padding: 6px 8px;
-  border: 1px solid #d0d3d8;
+select,
+textarea {
+  padding: 7px 11px;
+  border: 1px solid var(--border-dark);
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 13px;
+  color: var(--text-main);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.15);
 }
 
 input[type='checkbox'] {
-  width: auto;
-}
-
-button {
-  padding: 7px 14px;
-  border-radius: 6px;
-  border: 1px solid #3b6fd6;
-  background: #3b6fd6;
-  color: #fff;
-  font-size: 0.9rem;
+  width: 15px;
+  height: 15px;
+  accent-color: #2383e2;
   cursor: pointer;
-}
-
-button:hover {
-  background: #3160bd;
-}
-
-table button {
-  background: #fff;
-  color: #d1414a;
-  border: 1px solid #e2c3c5;
-  padding: 4px 10px;
-  font-size: 0.85rem;
-}
-
-table button:hover {
-  background: #fdf1f1;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-}
-
-ul li {
-  background: #fff;
-  border: 1px solid #e2e4e8;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
 }
 
 label {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-main);
+  cursor: pointer;
 }
+
+/* ==========================================================================
+   Buttons (Notion Style)
+   ========================================================================== */
+
+button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-dark);
+  background: #ffffff;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  box-shadow: var(--shadow-subtle);
+}
+
+button:hover {
+  background: #f7f7f5;
+  border-color: #d0d0ce;
+}
+
+/* Submit / Primary Actions */
+button[type='submit'] {
+  background: #2383e2;
+  border-color: #1c6ec0;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(35, 131, 226, 0.2);
+}
+
+button[type='submit']:hover {
+  background: #1c6ec0;
+  border-color: #165b9f;
+}
+
+/* Inline Table Action Buttons */
+table button {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-right: 6px;
+  background: #ffffff;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+table button:hover {
+  background: #f5f5f4;
+}
+
+/* Attendance Check-in Button */
+td > button {
+  background: var(--tag-green-bg);
+  color: var(--tag-green-text);
+  border: 1px solid var(--tag-green-border);
+  font-weight: 600;
+}
+
+td > button:hover {
+  background: #d8eed4;
+}
+
+/* ==========================================================================
+   Card Lists (Comments, Handover Notes)
+   ========================================================================== */
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+ul li {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-subtle);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+ul li:hover {
+  border-color: var(--border-dark);
+  box-shadow: var(--shadow-card);
+}
+
+ul li button {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--tag-red-text);
+  background: #ffffff;
+  border: 1px solid var(--tag-red-border);
+}
+
+ul li button:hover {
+  background: var(--tag-red-bg);
+}
+
+/* ==========================================================================
+   Multi-Select & Slot Editor (Tags & Schedule Rows)
+   ========================================================================== */
+
+/* Selected student tag chips */
+form div > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-text);
+  border: 1px solid var(--tag-blue-border);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0 4px 6px 0;
+}
+
+form div > span button {
+  padding: 0 3px;
+  min-width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: var(--tag-blue-text);
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 50%;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form div > span button:hover {
+  background: rgba(26, 86, 219, 0.15);
+}
+
+/* Slot Editor Rows */
+form div > div:has(select, input[type='time']) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* Status Badges in Attendance / Exceptions */
+td:has(> button) {
+  white-space: nowrap;
+}
+
+/* Error message */
+p[style*='color: red'],
+p[style*='color:red'] {
+  background: var(--tag-red-bg);
+  color: var(--tag-red-text) !important;
+  border: 1px solid var(--tag-red-border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+/* ==========================================================================
+   Custom Scrollbar
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.14);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.24);
+}
+
+
