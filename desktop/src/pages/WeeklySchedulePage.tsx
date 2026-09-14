@@ -391,9 +391,6 @@ export function WeeklySchedulePage() {
         <div className="timeline-outer-scroll">
           <div
             className={`timeline-grid-wrapper ${selectedDayOfWeek === 'all' ? 'seven-cols' : 'single-col'}`}
-            style={{
-              minWidth: selectedDayOfWeek === 'all' ? '1200px' : '650px'
-            }}
           >
             {/* Sticky Header Row */}
             <div className="timeline-header-row">
