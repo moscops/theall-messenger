@@ -7,7 +7,8 @@ import {
   scheduleExceptionInputSchema,
   studentCommentInputSchema,
   noShowAlertConfigInputSchema,
-  handoverNoteInputSchema
+  handoverNoteInputSchema,
+  calendarEventSchema
 } from '../src/schemas.js';
 
 describe('studentInputSchema', () => {
@@ -192,6 +193,38 @@ describe('handoverNoteInputSchema', () => {
       date: '2026/09/15',
       author: '조교A',
       content: '내용'
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('calendarEventSchema', () => {
+  it('accepts a valid regular_class event', () => {
+    const result = calendarEventSchema.safeParse({
+      date: '2026-09-15',
+      studentId: 's1',
+      studentName: '김민준',
+      source: 'class',
+      sourceId: 'c1',
+      category: 'regular_class',
+      label: '중2 수학',
+      startTime: '16:00',
+      endTime: '17:30'
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an invalid category', () => {
+    const result = calendarEventSchema.safeParse({
+      date: '2026-09-15',
+      studentId: 's1',
+      studentName: '김민준',
+      source: 'class',
+      sourceId: 'c1',
+      category: 'not-a-real-category',
+      label: '중2 수학',
+      startTime: '16:00',
+      endTime: '17:30'
     });
     expect(result.success).toBe(false);
   });

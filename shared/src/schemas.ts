@@ -171,6 +171,28 @@ export const handoverNoteSchema = handoverNoteInputSchema.extend({
 });
 export type HandoverNote = z.infer<typeof handoverNoteSchema>;
 
+export const calendarEventCategorySchema = z.enum([
+  'regular_class',
+  'clinic',
+  'absence',
+  'reschedule',
+  'makeup'
+]);
+export type CalendarEventCategory = z.infer<typeof calendarEventCategorySchema>;
+
+export const calendarEventSchema = z.object({
+  date: z.string(),
+  studentId: z.string(),
+  studentName: z.string(),
+  source: scheduleExceptionTargetTypeSchema,
+  sourceId: z.string(),
+  category: calendarEventCategorySchema,
+  label: z.string(),
+  startTime: z.string(),
+  endTime: z.string()
+});
+export type CalendarEvent = z.infer<typeof calendarEventSchema>;
+
 export const rosterEntrySchema = z.object({
   studentId: z.string(),
   studentName: z.string(),
