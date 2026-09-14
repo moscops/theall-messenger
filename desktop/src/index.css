@@ -1631,6 +1631,45 @@ ul li button:hover {
   color: var(--text-secondary);
 }
 
+.schedule-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.view-mode-toggle-group {
+  display: flex;
+  background: #f0f0ee;
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+}
+
+.mode-toggle-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.12s ease;
+}
+
+.mode-toggle-btn:hover {
+  color: var(--text-main);
+}
+
+.mode-toggle-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
 .schedule-search-box {
   display: flex;
   align-items: center;
@@ -1639,7 +1678,7 @@ ul li button:hover {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 6px 12px;
-  width: 260px;
+  width: 240px;
   box-shadow: var(--shadow-subtle);
   transition: border-color 0.15s ease;
 }
@@ -1676,6 +1715,87 @@ ul li button:hover {
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
   flex-wrap: wrap;
+}
+
+.filter-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.zoom-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fafaf9;
+  border: 1px solid var(--border-color);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.zoom-label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.zoom-btn.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-main);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.1s ease;
+}
+
+.zoom-btn.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.zoom-btn.icon-btn:not(:disabled):hover {
+  background: #f0f0ee;
+  border-color: var(--border-dark);
+}
+
+.zoom-segmented {
+  display: flex;
+  background: #f0f0ee;
+  border-radius: 4px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.zoom-segment-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 3px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.12s ease;
+}
+
+.zoom-segment-btn:hover {
+  color: var(--text-main);
+}
+
+.zoom-segment-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .day-selector-group {
@@ -1958,4 +2078,282 @@ ul li button:hover {
   border-color: #facc15;
   font-weight: 700;
 }
+
+/* ==========================================================================
+   Timeline Time-Grid View (시간대별 타임테이블)
+   ========================================================================== */
+
+.timeline-outer-scroll {
+  flex: 1;
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-subtle);
+  max-height: calc(100vh - 210px);
+  min-height: 480px;
+  position: relative;
+}
+
+.timeline-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sticky Header Row */
+.timeline-header-row {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #f7f7f5;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-corner-cell {
+  width: 64px;
+  min-width: 64px;
+  padding: 10px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  position: sticky;
+  left: 0;
+  z-index: 40;
+  background: #f3f3f1;
+}
+
+.timeline-day-header-cell {
+  flex: 1;
+  min-width: 160px;
+  padding: 10px 12px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7f7f5;
+}
+
+.timeline-day-header-cell:last-child {
+  border-right: none;
+}
+
+.timeline-day-header-cell .dow-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.timeline-day-header-cell .dow-count-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: #e8e8e6;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Timeline Body Row */
+.timeline-body-row {
+  display: flex;
+  position: relative;
+  background: #ffffff;
+}
+
+/* Time Axis (Sticky Left) */
+.timeline-time-axis-col {
+  width: 64px;
+  min-width: 64px;
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background: #fafaf9;
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.timeline-time-slot-label {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding-right: 8px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  transform: translateY(-8px);
+}
+
+/* Day Tracks */
+.timeline-day-track {
+  flex: 1;
+  min-width: 160px;
+  position: relative;
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.timeline-day-track:last-child {
+  border-right: none;
+}
+
+.timeline-grid-hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--border-color);
+  pointer-events: none;
+}
+
+.timeline-grid-half-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed #f0f0ee;
+  pointer-events: none;
+}
+
+.timeline-empty-hint {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Timeline Event Cards */
+.timeline-event-card {
+  position: absolute;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.12s ease, z-index 0.12s ease;
+  z-index: 10;
+  overflow: hidden;
+  cursor: default;
+}
+
+.timeline-event-card:hover {
+  z-index: 25;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  overflow: visible;
+}
+
+.timeline-event-card.class {
+  background: #f0f7ff;
+  border-color: #bcdbfc;
+  border-left: 3px solid #2383e2;
+}
+
+.timeline-event-card.clinic {
+  background: #f7f3ff;
+  border-color: #ddd2fc;
+  border-left: 3px solid #8b5cf6;
+}
+
+.timeline-event-card.highlighted {
+  border-color: #2383e2;
+  box-shadow: 0 0 0 2px #2383e2, 0 4px 12px rgba(35, 131, 226, 0.25);
+  z-index: 20;
+}
+
+.event-card-inner {
+  padding: 5px 7px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-top-row .block-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.card-time-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.card-event-name {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.card-teacher-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.card-students-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.card-no-students {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* In compact mode, adjust font sizes and padding */
+.timeline-event-card.compact .event-card-inner {
+  padding: 3px 5px;
+  gap: 2px;
+}
+
+.timeline-event-card.compact .card-event-name {
+  font-size: 11.5px;
+}
+
+.timeline-event-card.compact .card-time-text {
+  font-size: 10px;
+}
+
+.timeline-event-card.compact .student-chip-btn {
+  padding: 1px 5px;
+  font-size: 10.5px;
+}
+
 

@@ -99,4 +99,38 @@ describe('WeeklySchedulePage', () => {
     expect(await screen.findByText('학생 페이지')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: '김민수' })).toBeInTheDocument();
   });
+
+  it('switches between timeline view and board view', async () => {
+    render(<WeeklySchedulePage />);
+
+    await screen.findByText('고1 심화수학');
+
+    // Default is timeline view
+    expect(screen.getByText('시간표 뷰')).toHaveClass('active');
+
+    // Switch to board view
+    await userEvent.click(screen.getByRole('button', { name: '카드 목록 뷰' }));
+    expect(screen.getByText('카드 목록 뷰')).toHaveClass('active');
+    expect(screen.getByText('고1 심화수학')).toBeInTheDocument();
+
+    // Switch back to timeline view
+    await userEvent.click(screen.getByRole('button', { name: '시간표 뷰' }));
+    expect(screen.getByText('시간표 뷰')).toHaveClass('active');
+  });
+
+  it('changes zoom level with zoom controls', async () => {
+    render(<WeeklySchedulePage />);
+
+    await screen.findByText('고1 심화수학');
+
+    // Click 축소
+    const compactBtn = screen.getByRole('button', { name: '축소' });
+    await userEvent.click(compactBtn);
+    expect(compactBtn).toHaveClass('active');
+
+    // Click 확대
+    const expandedBtn = screen.getByRole('button', { name: '확대' });
+    await userEvent.click(expandedBtn);
+    expect(expandedBtn).toHaveClass('active');
+  });
 });
