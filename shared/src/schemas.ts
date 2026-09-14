@@ -101,7 +101,8 @@ export const scheduleExceptionInputSchema = z
     reason: z.string().optional(),
     newDate: dateStringSchema.optional(),
     newStartTime: timeSchema.optional(),
-    newEndTime: timeSchema.optional()
+    newEndTime: timeSchema.optional(),
+    classScheduleSlotId: z.string().optional()
   })
   .refine(
     (data) => {
@@ -128,6 +129,7 @@ export const scheduleExceptionSchema = z.object({
   newDate: z.string().optional(),
   newStartTime: z.string().optional(),
   newEndTime: z.string().optional(),
+  classScheduleSlotId: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string()
 });
