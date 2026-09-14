@@ -160,4 +160,53 @@ describe('computeCalendarEvents', () => {
 
     expect(events.map((e) => e.date)).toEqual([MONDAY, NEXT_MONDAY]);
   });
+
+  it('only marks the targeted slot as absence when a class has two same-weekday slots and the exception targets one specific slot', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [
+        { dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+        { dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+      ],
+      studentIds: [student.id]
+    });
+    const targetedSlotId = klass.schedule[0].id;
+    db.prepare(
+      `INSERT INTO schedule_exceptions (id, student_id, target_type, target_id, class_schedule_slot_id, exception_type, date, created_at, updated_at)
+       VALUES ('e1', ?, 'class', ?, ?, 'absence', ?, '', '')`
+    ).run(student.id, klass.id, targetedSlotId, MONDAY);
+
+    const events = computeCalendarEvents(db, MONDAY, MONDAY);
+
+    expect(events).toEqual([
+      expect.objectContaining({ startTime: '16:00', endTime: '17:30', category: 'absence' }),
+      expect.objectContaining({ startTime: '18:00', endTime: '19:30', category: 'regular_class' })
+    ]);
+  });
+
+  it('marks every same-weekday slot as absence when the exception has no class_schedule_slot_id', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [
+        { dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+        { dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+      ],
+      studentIds: [student.id]
+    });
+    db.prepare(
+      `INSERT INTO schedule_exceptions (id, student_id, target_type, target_id, exception_type, date, created_at, updated_at)
+       VALUES ('e1', ?, 'class', ?, 'absence', ?, '', '')`
+    ).run(student.id, klass.id, MONDAY);
+
+    const events = computeCalendarEvents(db, MONDAY, MONDAY);
+
+    expect(events).toEqual([
+      expect.objectContaining({ startTime: '16:00', category: 'absence' }),
+      expect.objectContaining({ startTime: '18:00', category: 'absence' })
+    ]);
+  });
 });
