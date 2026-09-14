@@ -33,13 +33,41 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body.data;
 }
 
+export async function downloadFile(path: string, defaultFilename: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}${path}`);
+  if (!res.ok) {
+    throw new Error(`파일 다운로드 실패 (${res.status})`);
+  }
+  const disposition = res.headers.get('content-disposition');
+  let filename = defaultFilename;
+  if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    if (match && match[1]) filename = match[1];
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export const studentsApi = {
   list: () => request<Student[]>('/students'),
   create: (input: StudentInput) =>
     request<Student>('/students', { method: 'POST', body: JSON.stringify(input) }),
   update: (id: string, input: StudentInput) =>
     request<Student>(`/students/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
-  remove: (id: string) => request<null>(`/students/${id}`, { method: 'DELETE' })
+  remove: (id: string) => request<null>(`/students/${id}`, { method: 'DELETE' }),
+  importExcel: (base64: string) =>
+    request<{ count: number; students: Student[] }>('/students/import-excel', {
+      method: 'POST',
+      body: JSON.stringify({ base64 })
+    }),
+  downloadTemplate: () => downloadFile('/students/template', '학생등록양식.xlsx')
 };
 
 export const classesApi = {
@@ -98,3 +126,15 @@ export const handoverNotesApi = {
     request<HandoverNote>(`/handover-notes/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<null>(`/handover-notes/${id}`, { method: 'DELETE' })
 };
+
+export const exportApi = {
+  downloadCalendarExcel: (from: string, to: string) =>
+    downloadFile(`/export/excel?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, `캘린더일정-${from}_${to}.xlsx`),
+  downloadCalendarPdf: (from: string, to: string) =>
+    downloadFile(`/export/pdf?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, `캘린더일정-${from}_${to}.pdf`),
+  downloadStudentsExcel: () =>
+    downloadFile('/export/excel/students', `학생명단-${new Date().toISOString().slice(0, 10)}.xlsx`),
+  downloadStudentsPdf: () =>
+    downloadFile('/export/pdf/students', `학생명단-${new Date().toISOString().slice(0, 10)}.pdf`)
+};
+

@@ -58,6 +58,17 @@ export class StudentRepository {
     return this.getById(id)!;
   }
 
+  createMany(inputs: StudentInput[]): Student[] {
+    const insertTransaction = this.db.transaction((items: StudentInput[]) => {
+      const results: Student[] = [];
+      for (const item of items) {
+        results.push(this.create(item));
+      }
+      return results;
+    });
+    return insertTransaction(inputs);
+  }
+
   update(id: string, input: StudentInput): Student | undefined {
     const existing = this.getById(id);
     if (!existing) return undefined;

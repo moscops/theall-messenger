@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Class, ClinicAssignment, HandoverNote, ScheduleException, Student } from '@theall/shared';
-import { classesApi, clinicsApi, exceptionsApi, handoverNotesApi, studentsApi } from '../api/client';
+import { classesApi, clinicsApi, exceptionsApi, exportApi, handoverNotesApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { DAY_LABELS } from '../dayOfWeek';
@@ -201,6 +201,18 @@ export function CalendarPage() {
   const selectedDayEvents = selectedDay ? getEventsForDate(selectedDay) : [];
   const todayStr = new Date().toISOString().slice(0, 10);
 
+  const handleDownloadCalendarExcel = () => {
+    const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDate).padStart(2, '0')}`;
+    exportApi.downloadCalendarExcel(startStr, endStr).catch((e) => logger.error(e));
+  };
+
+  const handleDownloadCalendarPdf = () => {
+    const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDate).padStart(2, '0')}`;
+    exportApi.downloadCalendarPdf(startStr, endStr).catch((e) => logger.error(e));
+  };
+
   return (
     <div className="notion-calendar-page">
       {/* Calendar Header Controls */}
@@ -219,6 +231,25 @@ export function CalendarPage() {
             </button>
             <button type="button" onClick={nextMonth} className="cal-nav-btn">
               ›
+            </button>
+          </div>
+
+          <div className="notion-btn-group" style={{ marginLeft: '12px' }}>
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleDownloadCalendarExcel}
+              title="현재 월의 수업 및 일정 목록을 엑셀(.xlsx)로 다운로드합니다"
+            >
+              <span>엑셀 다운로드</span>
+            </button>
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleDownloadCalendarPdf}
+              title="현재 월의 수업 및 일정 목록을 PDF로 다운로드합니다"
+            >
+              <span>PDF 다운로드</span>
             </button>
           </div>
         </div>

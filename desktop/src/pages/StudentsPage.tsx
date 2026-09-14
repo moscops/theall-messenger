@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   Class,
   ClassInput,
@@ -9,7 +9,7 @@ import type {
   StudentInput
 } from '@theall/shared';
 import * as clientModule from '../api/client';
-import { studentsApi } from '../api/client';
+import { exportApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { StudentMultiSelect } from '../components/StudentMultiSelect';
@@ -26,6 +26,10 @@ export function StudentsPage() {
   const [clinics, setClinics] = useState<ClinicAssignment[]>([]);
   const [exceptions, setExceptions] = useState<ScheduleException[]>([]);
   const [comments, setComments] = useState<StudentComment[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [form, setForm] = useState<StudentInput>(emptyForm);
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
@@ -242,12 +246,104 @@ export function StudentsPage() {
     });
   }, [students, studentScheduleMap, patternFilter, searchTerm]);
 
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setAlertMessage(null);
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const resultStr = reader.result as string;
+          const base64 = resultStr.includes(',') ? resultStr.split(',')[1] : resultStr;
+
+          const mod = clientModule as Record<string, unknown>;
+          const sApi = mod.studentsApi as { importExcel?: (b64: string) => Promise<{ count: number }> };
+
+          if (sApi && typeof sApi.importExcel === 'function') {
+            const res = await sApi.importExcel(base64);
+            setAlertMessage({
+              type: 'success',
+              text: `엑셀 파일에서 ${res.count}명의 학생 정보가 성공적으로 등록되었습니다.`
+            });
+            refreshStudents();
+            refreshRelations();
+          } else {
+            setAlertMessage({
+              type: 'error',
+              text: '엑셀 등록 API를 사용할 수 없습니다.'
+            });
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : '엑셀 파일 파싱 중 오류가 발생했습니다.';
+          setAlertMessage({ type: 'error', text: msg });
+        } finally {
+          setIsImporting(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setIsImporting(false);
+      const msg = err instanceof Error ? err.message : '파일 읽기 오류';
+      setAlertMessage({ type: 'error', text: msg });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const mod = clientModule as Record<string, unknown>;
+      const sApi = mod.studentsApi as { downloadTemplate?: () => Promise<void> };
+      if (sApi && typeof sApi.downloadTemplate === 'function') {
+        await sApi.downloadTemplate();
+      }
+    } catch (err) {
+      logger.error(err);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      const mod = clientModule as Record<string, unknown>;
+      const expApi = mod.exportApi as { downloadStudentsExcel?: () => Promise<void> };
+      if (expApi && typeof expApi.downloadStudentsExcel === 'function') {
+        await expApi.downloadStudentsExcel();
+      }
+    } catch (err) {
+      logger.error(err);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      const mod = clientModule as Record<string, unknown>;
+      const expApi = mod.exportApi as { downloadStudentsPdf?: () => Promise<void> };
+      if (expApi && typeof expApi.downloadStudentsPdf === 'function') {
+        await expApi.downloadStudentsPdf();
+      }
+    } catch (err) {
+      logger.error(err);
+    }
+  };
+
   return (
     <div className="notion-page">
       {/* Top Header */}
       <div className="notion-page-header">
         <h2>학생</h2>
         <div className="notion-header-actions">
+          {/* Hidden File Input for Excel Import */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".xlsx,.xls,.csv"
+            style={{ display: 'none' }}
+            onChange={handleExcelUpload}
+          />
+
           <div className="search-box-wrapper">
             <SearchIcon size={14} className="search-icon" />
             <input
@@ -258,6 +354,45 @@ export function StudentsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          <button
+            type="button"
+            className="notion-secondary-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            title="엑셀 파일을 업로드하여 학생 정보를 일괄 등록합니다"
+          >
+            <span>{isImporting ? '등록 중...' : '엑셀 일괄 등록'}</span>
+          </button>
+
+          <button
+            type="button"
+            className="notion-secondary-btn"
+            onClick={handleDownloadTemplate}
+            title="엑셀 등록 표준 양식 템플릿을 다운로드합니다"
+          >
+            <span>양식 다운로드</span>
+          </button>
+
+          <div className="notion-btn-group">
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleExportExcel}
+              title="학생 관리 탭 정보를 엑셀(.xlsx) 파일로 다운로드합니다"
+            >
+              <span>명단 엑셀</span>
+            </button>
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleExportPdf}
+              title="학생 관리 탭 정보를 PDF 파일로 다운로드합니다"
+            >
+              <span>명단 PDF</span>
+            </button>
+          </div>
+
           <button
             type="button"
             className="notion-primary-btn"
@@ -274,6 +409,16 @@ export function StudentsPage() {
           </button>
         </div>
       </div>
+
+      {/* Alert Banner for Excel Import or System Messages */}
+      {alertMessage && (
+        <div className={`notion-alert-banner ${alertMessage.type}`}>
+          <span>{alertMessage.text}</span>
+          <button type="button" onClick={() => setAlertMessage(null)}>
+            ✕
+          </button>
+        </div>
+      )}
 
       <p className="notion-hint-text">학생 이름을 클릭하면 우측에서 상세 인적사항, 수강 수업, 코멘트를 확인할 수 있습니다.</p>
 

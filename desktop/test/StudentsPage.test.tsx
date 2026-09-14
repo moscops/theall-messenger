@@ -9,7 +9,13 @@ vi.mock('../src/api/client', () => ({
     list: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
-    remove: vi.fn()
+    remove: vi.fn(),
+    importExcel: vi.fn(),
+    downloadTemplate: vi.fn()
+  },
+  exportApi: {
+    downloadStudentsExcel: vi.fn(),
+    downloadStudentsPdf: vi.fn()
   }
 }));
 
@@ -160,6 +166,25 @@ describe('StudentsPage', () => {
     expect(screen.getByPlaceholderText('학년/반')).toHaveValue('1학년');
     expect(screen.getByPlaceholderText('전화번호')).toHaveValue('010-9999-8888');
     expect(screen.getByText('수정 완료')).toBeInTheDocument();
+  });
+
+  it('renders excel import, template download, and export buttons and handles export clicks', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([]);
+
+    render(<StudentsPage />);
+
+    const importBtn = screen.getByText('엑셀 일괄 등록');
+    const templateBtn = screen.getByText('양식 다운로드');
+    const exportExcelBtn = screen.getByText('명단 엑셀');
+    const exportPdfBtn = screen.getByText('명단 PDF');
+
+    expect(importBtn).toBeInTheDocument();
+    expect(templateBtn).toBeInTheDocument();
+    expect(exportExcelBtn).toBeInTheDocument();
+    expect(exportPdfBtn).toBeInTheDocument();
+
+    await userEvent.click(templateBtn);
+    expect(studentsApi.downloadTemplate).toHaveBeenCalled();
   });
 });
 

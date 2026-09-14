@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Class, ClinicAssignment, ScheduleException, Student, StudentComment } from '@theall/shared';
-import { classesApi, clinicsApi, commentsApi, exceptionsApi, studentsApi } from '../api/client';
+import { classesApi, clinicsApi, commentsApi, exceptionsApi, exportApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { DAY_LABELS } from '../dayOfWeek';
@@ -249,6 +249,32 @@ export function WeeklySchedulePage() {
     commentsApi.list().then(setComments).catch((err: unknown) => logger.error(err));
   };
 
+  const handleDownloadWeeklyExcel = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const diffToMon = day === 0 ? -6 : 1 - day;
+    const mon = new Date(today);
+    mon.setDate(today.getDate() + diffToMon);
+    const sun = new Date(mon);
+    sun.setDate(mon.getDate() + 6);
+    const fromStr = mon.toISOString().slice(0, 10);
+    const toStr = sun.toISOString().slice(0, 10);
+    exportApi.downloadCalendarExcel(fromStr, toStr).catch((e) => logger.error(e));
+  };
+
+  const handleDownloadWeeklyPdf = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const diffToMon = day === 0 ? -6 : 1 - day;
+    const mon = new Date(today);
+    mon.setDate(today.getDate() + diffToMon);
+    const sun = new Date(mon);
+    sun.setDate(mon.getDate() + 6);
+    const fromStr = mon.toISOString().slice(0, 10);
+    const toStr = sun.toISOString().slice(0, 10);
+    exportApi.downloadCalendarPdf(fromStr, toStr).catch((e) => logger.error(e));
+  };
+
   return (
     <div className="notion-weekly-schedule-page">
       {/* Top Header */}
@@ -261,6 +287,26 @@ export function WeeklySchedulePage() {
         </div>
 
         <div className="schedule-header-actions">
+          {/* Export Buttons */}
+          <div className="notion-btn-group">
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleDownloadWeeklyExcel}
+              title="이번 주 수업 일정을 엑셀(.xlsx)로 다운로드합니다"
+            >
+              <span>주간 엑셀</span>
+            </button>
+            <button
+              type="button"
+              className="notion-secondary-btn"
+              onClick={handleDownloadWeeklyPdf}
+              title="이번 주 수업 일정을 PDF로 다운로드합니다"
+            >
+              <span>주간 PDF</span>
+            </button>
+          </div>
+
           {/* View Mode Toggle */}
           <div className="view-mode-toggle-group">
             <button

@@ -2567,5 +2567,75 @@ ul li button:hover {
   cursor: pointer;
 }
 
+/* Notion Header Export & Import Actions */
+.notion-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.notion-secondary-btn:hover {
+  background: rgba(55, 53, 47, 0.05);
+  border-color: var(--border-dark);
+}
+
+.notion-secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.notion-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.notion-alert-banner.success {
+  background: var(--tag-green-bg);
+  color: var(--tag-green-text);
+  border: 1px solid var(--tag-green-border);
+}
+
+.notion-alert-banner.error {
+  background: var(--tag-red-bg);
+  color: var(--tag-red-text);
+  border: 1px solid var(--tag-red-border);
+}
+
+.notion-alert-banner button {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0 4px;
+}
+
+.notion-alert-banner button:hover {
+  opacity: 1;
+}
+
+.notion-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
 
 
