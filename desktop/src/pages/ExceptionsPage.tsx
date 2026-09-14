@@ -148,7 +148,13 @@ export function ExceptionsPage() {
         <select
           value={form.exceptionType}
           onChange={(e) =>
-            setForm({ ...form, exceptionType: e.target.value as ScheduleExceptionInput['exceptionType'] })
+            setForm({
+              ...form,
+              exceptionType: e.target.value as ScheduleExceptionInput['exceptionType'],
+              newDate: undefined,
+              newStartTime: undefined,
+              newEndTime: undefined
+            })
           }
         >
           <option value="absence">결석</option>

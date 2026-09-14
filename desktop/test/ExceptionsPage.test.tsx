@@ -108,4 +108,58 @@ describe('ExceptionsPage', () => {
       newEndTime: '18:30'
     });
   });
+
+  it('clears stale reschedule fields when switching exception type back to absence', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      { id: 's1', name: '김민준', siblingIds: [], createdAt: '', updatedAt: '' }
+    ]);
+    vi.mocked(classesApi.list).mockResolvedValue([
+      {
+        id: 'c1',
+        name: '중2 수학',
+        teacherName: '박선생',
+        schedule: [],
+        studentIds: [],
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+    vi.mocked(clinicsApi.list).mockResolvedValue([]);
+    vi.mocked(exceptionsApi.list).mockResolvedValue([]);
+    vi.mocked(exceptionsApi.create).mockResolvedValue({
+      id: 'e1',
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      exceptionType: 'absence',
+      date: '2026-09-15',
+      createdAt: '',
+      updatedAt: ''
+    });
+
+    render(<ExceptionsPage />);
+    await screen.findByText('중2 수학');
+
+    await userEvent.selectOptions(screen.getByDisplayValue('학생 선택'), 's1');
+    await userEvent.selectOptions(screen.getByDisplayValue('대상 선택'), 'c1');
+    await userEvent.selectOptions(screen.getByDisplayValue('결석'), '시간변경');
+
+    const dateInputs = screen.getAllByDisplayValue('').filter((el) => el.getAttribute('type') === 'date');
+    fireEvent.change(dateInputs[0], { target: { value: '2026-09-15' } });
+    fireEvent.change(dateInputs[1], { target: { value: '2026-09-17' } });
+    const timeInputs = screen.getAllByDisplayValue('').filter((el) => el.getAttribute('type') === 'time');
+    fireEvent.change(timeInputs[0], { target: { value: '17:00' } });
+    fireEvent.change(timeInputs[1], { target: { value: '18:30' } });
+
+    await userEvent.selectOptions(screen.getByDisplayValue('시간변경'), '결석');
+
+    const createCallsBefore = vi.mocked(exceptionsApi.create).mock.calls.length;
+    await userEvent.click(screen.getByText('추가'));
+
+    await waitFor(() => expect(exceptionsApi.create).toHaveBeenCalledTimes(createCallsBefore + 1));
+    const [input] = vi.mocked(exceptionsApi.create).mock.calls[createCallsBefore];
+    expect(input.newDate).toBeUndefined();
+    expect(input.newStartTime).toBeUndefined();
+    expect(input.newEndTime).toBeUndefined();
+  });
 });
