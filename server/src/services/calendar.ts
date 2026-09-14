@@ -22,7 +22,7 @@ interface ExceptionOutRow {
   student_id: string;
   target_type: string;
   target_id: string;
-  exception_type: string;
+  exception_type: 'absence' | 'reschedule';
 }
 
 interface ExceptionInRow {
@@ -95,16 +95,19 @@ function computeEventsForDate(db: Database.Database, date: string): CalendarEven
     .all(date) as ExceptionOutRow[];
 
   events = events.reduce<CalendarEvent[]>((acc, event) => {
-    const match = exceptionsForDate.find(
+    const matches = exceptionsForDate.filter(
       (ex) => ex.student_id === event.studentId && ex.target_type === event.source && ex.target_id === event.sourceId
     );
+    const match = matches.find((ex) => ex.exception_type === 'reschedule') ?? matches[0];
     if (!match) {
       acc.push(event);
     } else if (match.exception_type === 'absence') {
       acc.push({ ...event, category: 'absence' });
     }
     // exception_type === 'reschedule': the occurrence moved to another date — drop it here,
-    // it is re-added below on its new date.
+    // it is re-added below on its new date. (If both an absence and a
+    // reschedule exist for the same occurrence, reschedule wins deterministically —
+    // see above.)
     return acc;
   }, []);
 

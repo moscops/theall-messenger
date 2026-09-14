@@ -97,6 +97,33 @@ describe('computeCalendarEvents', () => {
     ]);
   });
 
+  it('deterministically prefers reschedule over absence when both exist for the same occurrence', () => {
+    const student = students.create({ name: '김민준' });
+    const klass = classes.create({
+      name: '중2 수학',
+      teacherName: '박선생',
+      schedule: [{ dayOfWeek: 1, startTime: '16:00', endTime: '17:30' }],
+      studentIds: [student.id]
+    });
+    const NEW_DATE = '2024-01-03';
+    // Insert absence first, then reschedule — same (student, target, date) key.
+    db.prepare(
+      `INSERT INTO schedule_exceptions (id, student_id, target_type, target_id, exception_type, date, created_at, updated_at)
+       VALUES ('e1', ?, 'class', ?, 'absence', ?, '', '')`
+    ).run(student.id, klass.id, MONDAY);
+    db.prepare(
+      `INSERT INTO schedule_exceptions
+       (id, student_id, target_type, target_id, exception_type, date, new_date, new_start_time, new_end_time, created_at, updated_at)
+       VALUES ('e2', ?, 'class', ?, 'reschedule', ?, ?, '17:00', '18:30', '', '')`
+    ).run(student.id, klass.id, MONDAY, NEW_DATE);
+
+    const events = computeCalendarEvents(db, MONDAY, NEW_DATE);
+
+    expect(events).toEqual([
+      expect.objectContaining({ date: NEW_DATE, category: 'reschedule', startTime: '17:00', endTime: '18:30' })
+    ]);
+  });
+
   it('adds a makeup occurrence on its date when new_date is unset, matching real API-created rows', () => {
     const student = students.create({ name: '김민준' });
     const klass = classes.create({
