@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { studentsApi, classesApi, clinicsApi } from '../src/api/client';
+import { studentsApi, classesApi, clinicsApi, attendanceApi, alertConfigApi, exceptionsApi, commentsApi } from '../src/api/client';
 
 function mockFetchOnce(body: unknown) {
   const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
@@ -115,5 +115,82 @@ describe('clinicsApi', () => {
       startTime: '18:00',
       endTime: '19:00'
     });
+  });
+});
+
+describe('attendanceApi', () => {
+  it('requests the roster for a date via the query string', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: [] });
+
+    await attendanceApi.roster('2026-09-15');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/attendance/roster?date=2026-09-15',
+      expect.objectContaining({})
+    );
+  });
+
+  it('sends a POST with the correct body on checkIn()', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: { id: 'a1' } });
+
+    await attendanceApi.checkIn({ studentId: 's1', date: '2026-09-15', checkInTime: '09:05' });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/attendance/check-in',
+      expect.objectContaining({ method: 'POST' })
+    );
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(init?.body as string)).toEqual({
+      studentId: 's1',
+      date: '2026-09-15',
+      checkInTime: '09:05'
+    });
+  });
+});
+
+describe('alertConfigApi', () => {
+  it('sends a PUT with the correct body on update()', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: { enabled: true, delayMinutes: 15 } });
+
+    await alertConfigApi.update({ enabled: true, delayMinutes: 15 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/attendance/alert-config',
+      expect.objectContaining({ method: 'PUT' })
+    );
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(init?.body as string)).toEqual({ enabled: true, delayMinutes: 15 });
+  });
+});
+
+describe('exceptionsApi', () => {
+  it('sends a POST with the correct body on create()', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: { id: 'e1' } });
+
+    await exceptionsApi.create({
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      exceptionType: 'absence',
+      date: '2026-09-15'
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/exceptions',
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+});
+
+describe('commentsApi', () => {
+  it('sends a POST with the correct body on create()', async () => {
+    const fetchMock = mockFetchOnce({ success: true, data: { id: 'c1' } });
+
+    await commentsApi.create({ studentId: 's1', author: '조교', content: '내용' });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:4000/comments',
+      expect.objectContaining({ method: 'POST' })
+    );
   });
 });

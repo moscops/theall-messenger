@@ -5,7 +5,16 @@ import type {
   Class,
   ClassInput,
   ClinicAssignment,
-  ClinicAssignmentInput
+  ClinicAssignmentInput,
+  AttendanceLog,
+  AttendanceLogInput,
+  RosterEntry,
+  NoShowAlertConfig,
+  NoShowAlertConfigInput,
+  ScheduleException,
+  ScheduleExceptionInput,
+  StudentComment,
+  StudentCommentInput
 } from '@theall/shared';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
@@ -47,4 +56,34 @@ export const clinicsApi = {
   update: (id: string, input: ClinicAssignmentInput) =>
     request<ClinicAssignment>(`/clinics/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<null>(`/clinics/${id}`, { method: 'DELETE' })
+};
+
+export const attendanceApi = {
+  roster: (date: string) => request<RosterEntry[]>(`/attendance/roster?date=${date}`),
+  checkIn: (input: AttendanceLogInput) =>
+    request<AttendanceLog>('/attendance/check-in', { method: 'POST', body: JSON.stringify(input) })
+};
+
+export const alertConfigApi = {
+  get: () => request<NoShowAlertConfig>('/attendance/alert-config'),
+  update: (input: NoShowAlertConfigInput) =>
+    request<NoShowAlertConfig>('/attendance/alert-config', { method: 'PUT', body: JSON.stringify(input) })
+};
+
+export const exceptionsApi = {
+  list: () => request<ScheduleException[]>('/exceptions'),
+  create: (input: ScheduleExceptionInput) =>
+    request<ScheduleException>('/exceptions', { method: 'POST', body: JSON.stringify(input) }),
+  update: (id: string, input: ScheduleExceptionInput) =>
+    request<ScheduleException>(`/exceptions/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  remove: (id: string) => request<null>(`/exceptions/${id}`, { method: 'DELETE' })
+};
+
+export const commentsApi = {
+  list: () => request<StudentComment[]>('/comments'),
+  create: (input: StudentCommentInput) =>
+    request<StudentComment>('/comments', { method: 'POST', body: JSON.stringify(input) }),
+  update: (id: string, input: StudentCommentInput) =>
+    request<StudentComment>(`/comments/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  remove: (id: string) => request<null>(`/comments/${id}`, { method: 'DELETE' })
 };
