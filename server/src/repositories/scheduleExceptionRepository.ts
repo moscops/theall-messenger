@@ -13,6 +13,7 @@ interface ExceptionRow {
   new_date: string | null;
   new_start_time: string | null;
   new_end_time: string | null;
+  class_schedule_slot_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -29,6 +30,7 @@ function rowToException(row: ExceptionRow): ScheduleException {
     newDate: row.new_date ?? undefined,
     newStartTime: row.new_start_time ?? undefined,
     newEndTime: row.new_end_time ?? undefined,
+    classScheduleSlotId: row.class_schedule_slot_id ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -43,8 +45,8 @@ export class ScheduleExceptionRepository {
     this.db
       .prepare(
         `INSERT INTO schedule_exceptions
-         (id, student_id, target_type, target_id, exception_type, date, reason, new_date, new_start_time, new_end_time, created_at, updated_at)
-         VALUES (@id, @studentId, @targetType, @targetId, @exceptionType, @date, @reason, @newDate, @newStartTime, @newEndTime, @createdAt, @updatedAt)`
+         (id, student_id, target_type, target_id, exception_type, date, reason, new_date, new_start_time, new_end_time, class_schedule_slot_id, created_at, updated_at)
+         VALUES (@id, @studentId, @targetType, @targetId, @exceptionType, @date, @reason, @newDate, @newStartTime, @newEndTime, @classScheduleSlotId, @createdAt, @updatedAt)`
       )
       .run({
         id,
@@ -57,6 +59,7 @@ export class ScheduleExceptionRepository {
         newDate: input.newDate ?? null,
         newStartTime: input.newStartTime ?? null,
         newEndTime: input.newEndTime ?? null,
+        classScheduleSlotId: input.classScheduleSlotId ?? null,
         createdAt: now,
         updatedAt: now
       });
@@ -70,7 +73,8 @@ export class ScheduleExceptionRepository {
       .prepare(
         `UPDATE schedule_exceptions SET student_id = @studentId, target_type = @targetType, target_id = @targetId,
          exception_type = @exceptionType, date = @date, reason = @reason, new_date = @newDate,
-         new_start_time = @newStartTime, new_end_time = @newEndTime, updated_at = @updatedAt
+         new_start_time = @newStartTime, new_end_time = @newEndTime, class_schedule_slot_id = @classScheduleSlotId,
+         updated_at = @updatedAt
          WHERE id = @id`
       )
       .run({
@@ -84,6 +88,7 @@ export class ScheduleExceptionRepository {
         newDate: input.newDate ?? null,
         newStartTime: input.newStartTime ?? null,
         newEndTime: input.newEndTime ?? null,
+        classScheduleSlotId: input.classScheduleSlotId ?? null,
         updatedAt: now
       });
     return this.getById(id);

@@ -77,6 +77,7 @@ export function createDb(filePath: string): Database.Database {
       new_date TEXT,
       new_start_time TEXT,
       new_end_time TEXT,
+      class_schedule_slot_id TEXT REFERENCES class_schedule_slots(id) ON DELETE SET NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
