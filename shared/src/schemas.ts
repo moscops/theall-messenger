@@ -157,6 +157,20 @@ export type NoShowAlertConfigInput = z.infer<typeof noShowAlertConfigInputSchema
 export const noShowAlertConfigSchema = noShowAlertConfigInputSchema;
 export type NoShowAlertConfig = z.infer<typeof noShowAlertConfigSchema>;
 
+export const handoverNoteInputSchema = z.object({
+  date: dateStringSchema,
+  author: z.string().min(1, 'author is required'),
+  content: z.string().min(1, 'content is required')
+});
+export type HandoverNoteInput = z.infer<typeof handoverNoteInputSchema>;
+
+export const handoverNoteSchema = handoverNoteInputSchema.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+export type HandoverNote = z.infer<typeof handoverNoteSchema>;
+
 export const rosterEntrySchema = z.object({
   studentId: z.string(),
   studentName: z.string(),

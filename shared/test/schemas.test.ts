@@ -6,7 +6,8 @@ import {
   attendanceLogInputSchema,
   scheduleExceptionInputSchema,
   studentCommentInputSchema,
-  noShowAlertConfigInputSchema
+  noShowAlertConfigInputSchema,
+  handoverNoteInputSchema
 } from '../src/schemas.js';
 
 describe('studentInputSchema', () => {
@@ -163,6 +164,35 @@ describe('noShowAlertConfigInputSchema', () => {
 
   it('rejects a delay of 0 minutes', () => {
     const result = noShowAlertConfigInputSchema.safeParse({ enabled: true, delayMinutes: 0 });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('handoverNoteInputSchema', () => {
+  it('accepts a valid handover note', () => {
+    const result = handoverNoteInputSchema.safeParse({
+      date: '2026-09-15',
+      author: '조교A',
+      content: '내일 김민준 학생 보충 시간 변경 예정, 확인 부탁드려요'
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a note with no content', () => {
+    const result = handoverNoteInputSchema.safeParse({
+      date: '2026-09-15',
+      author: '조교A',
+      content: ''
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a malformed date', () => {
+    const result = handoverNoteInputSchema.safeParse({
+      date: '2026/09/15',
+      author: '조교A',
+      content: '내용'
+    });
     expect(result.success).toBe(false);
   });
 });
