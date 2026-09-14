@@ -8,11 +8,13 @@ import { ClinicRepository } from './repositories/clinicRepository.js';
 import { AttendanceRepository } from './repositories/attendanceRepository.js';
 import { NoShowAlertConfigRepository } from './repositories/noShowAlertConfigRepository.js';
 import { ScheduleExceptionRepository } from './repositories/scheduleExceptionRepository.js';
+import { StudentCommentRepository } from './repositories/studentCommentRepository.js';
 import { createStudentsRouter } from './routes/students.js';
 import { createClassesRouter } from './routes/classes.js';
 import { createClinicsRouter } from './routes/clinics.js';
 import { createAttendanceRouter } from './routes/attendance.js';
 import { createExceptionsRouter } from './routes/exceptions.js';
+import { createCommentsRouter } from './routes/comments.js';
 import type { Broadcaster } from './broadcast.js';
 import { logger } from './logger.js';
 
@@ -40,6 +42,7 @@ export function createApp(db: Database.Database, broadcast: Broadcaster): Expres
     createAttendanceRouter(db, new AttendanceRepository(db), new NoShowAlertConfigRepository(db), broadcast)
   );
   app.use('/exceptions', createExceptionsRouter(new ScheduleExceptionRepository(db), broadcast));
+  app.use('/comments', createCommentsRouter(new StudentCommentRepository(db), broadcast));
 
   app.use((_req: Request, res: Response) => {
     const response: ApiResponse<never> = { success: false, error: 'not found' };
