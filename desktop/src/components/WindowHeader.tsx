@@ -14,6 +14,8 @@ declare global {
       maximize: () => void;
       close: () => void;
       isMaximized: () => Promise<boolean>;
+      getBounds?: () => Promise<{ x: number; y: number; width: number; height: number }>;
+      setBounds?: (bounds: { x: number; y: number; width: number; height: number }) => void;
       onMaximizedChange?: (callback: (isMaximized: boolean) => void) => () => void;
     };
   }

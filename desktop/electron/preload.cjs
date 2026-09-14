@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximize: () => ipcRenderer.send('window-maximize'),
   close: () => ipcRenderer.send('window-close'),
   isMaximized: () => ipcRenderer.invoke('window-is-maximized'),
+  getBounds: () => ipcRenderer.invoke('window-get-bounds'),
+  setBounds: (bounds) => ipcRenderer.send('window-set-bounds', bounds),
   onMaximizedChange: (callback) => {
     const handler = (_event, isMaximized) => callback(isMaximized);
     ipcRenderer.on('window-maximized-changed', handler);

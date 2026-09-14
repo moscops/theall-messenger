@@ -10,7 +10,10 @@ function createWindow() {
     minWidth: 920,
     minHeight: 600,
     frame: false,
-    backgroundColor: '#ffffff',
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: true,
+    roundedCorners: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -24,6 +27,17 @@ function createWindow() {
   } else {
     win.loadFile('dist/index.html');
   }
+
+  // Window bounds IPC handlers for edge drag-resizing
+  ipcMain.handle('window-get-bounds', () => {
+    return !win.isDestroyed() && win.getBounds();
+  });
+
+  ipcMain.on('window-set-bounds', (_event, bounds) => {
+    if (!win.isDestroyed() && bounds) {
+      win.setBounds(bounds);
+    }
+  });
 
   // Push window maximize state changes to renderer for seamless synchronization
   win.on('maximize', () => {

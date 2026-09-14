@@ -57,6 +57,7 @@ export function App() {
 
   useEffect(() => {
     if (window.electronAPI) {
+      document.body.classList.remove('web-mode');
       window.electronAPI.isMaximized().then(setIsMaximized).catch(() => {});
       if (typeof window.electronAPI.onMaximizedChange === 'function') {
         const cleanup = window.electronAPI.onMaximizedChange((maximized) => {
@@ -64,6 +65,8 @@ export function App() {
         });
         return cleanup;
       }
+    } else {
+      document.body.classList.add('web-mode');
     }
   }, []);
 
