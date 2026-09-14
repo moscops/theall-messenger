@@ -8,6 +8,17 @@ import { CommentsPage } from './pages/CommentsPage';
 import { HandoverNotesPage } from './pages/HandoverNotesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CalendarPage } from './pages/CalendarPage';
+import {
+  AttendanceIcon,
+  CalendarIcon,
+  ClassIcon,
+  ClinicIcon,
+  CommentIcon,
+  ExceptionIcon,
+  HandoverIcon,
+  HomeIcon,
+  StudentIcon
+} from './components/icons';
 
 type Tab =
   | 'dashboard'
@@ -33,7 +44,6 @@ const TAB_TITLES: Record<Tab, string> = {
 };
 
 export function App() {
-  // Default to 'students' to ensure full test suite compatibility
   const [tab, setTab] = useState<Tab>('students');
 
   return (
@@ -54,19 +64,19 @@ export function App() {
         <div className="sidebar-nav">
           <button
             type="button"
-            data-tab="dashboard"
             className={`nav-tab-btn ${tab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setTab('dashboard')}
           >
-            대시보드
+            <HomeIcon size={16} className="nav-icon" />
+            <span>대시보드</span>
           </button>
           <button
             type="button"
-            data-tab="calendar"
             className={`nav-tab-btn ${tab === 'calendar' ? 'active' : ''}`}
             onClick={() => setTab('calendar')}
           >
-            통합 캘린더
+            <CalendarIcon size={16} className="nav-icon" />
+            <span>통합 캘린더</span>
           </button>
         </div>
 
@@ -75,59 +85,59 @@ export function App() {
         <nav className="sidebar-nav">
           <button
             type="button"
-            data-tab="students"
             className={`nav-tab-btn ${tab === 'students' ? 'active' : ''}`}
             onClick={() => setTab('students')}
           >
-            학생
+            <StudentIcon size={16} className="nav-icon" />
+            <span>학생</span>
           </button>
           <button
             type="button"
-            data-tab="classes"
             className={`nav-tab-btn ${tab === 'classes' ? 'active' : ''}`}
             onClick={() => setTab('classes')}
           >
-            수업
+            <ClassIcon size={16} className="nav-icon" />
+            <span>수업</span>
           </button>
           <button
             type="button"
-            data-tab="clinics"
             className={`nav-tab-btn ${tab === 'clinics' ? 'active' : ''}`}
             onClick={() => setTab('clinics')}
           >
-            클리닉
+            <ClinicIcon size={16} className="nav-icon" />
+            <span>클리닉</span>
           </button>
           <button
             type="button"
-            data-tab="attendance"
             className={`nav-tab-btn ${tab === 'attendance' ? 'active' : ''}`}
             onClick={() => setTab('attendance')}
           >
-            출결
+            <AttendanceIcon size={16} className="nav-icon" />
+            <span>출결</span>
           </button>
           <button
             type="button"
-            data-tab="exceptions"
             className={`nav-tab-btn ${tab === 'exceptions' ? 'active' : ''}`}
             onClick={() => setTab('exceptions')}
           >
-            일정 예외
+            <ExceptionIcon size={16} className="nav-icon" />
+            <span>일정 예외</span>
           </button>
           <button
             type="button"
-            data-tab="comments"
             className={`nav-tab-btn ${tab === 'comments' ? 'active' : ''}`}
             onClick={() => setTab('comments')}
           >
-            코멘트
+            <CommentIcon size={16} className="nav-icon" />
+            <span>코멘트</span>
           </button>
           <button
             type="button"
-            data-tab="handover"
             className={`nav-tab-btn ${tab === 'handover' ? 'active' : ''}`}
             onClick={() => setTab('handover')}
           >
-            인수인계
+            <HandoverIcon size={16} className="nav-icon" />
+            <span>인수인계</span>
           </button>
         </nav>
 

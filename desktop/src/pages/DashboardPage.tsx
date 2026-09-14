@@ -6,6 +6,18 @@ import { logger } from '../logger';
 import { todayLocal } from '../date';
 import { findOverdueEntries } from '../attendanceAlerts';
 import { DAY_LABELS } from '../dayOfWeek';
+import {
+  AlertCircleIcon,
+  AttendanceIcon,
+  BookOpenIcon,
+  CalendarIcon,
+  CheckCircleIcon,
+  ClassIcon,
+  ClockIcon,
+  HandoverIcon,
+  StudentIcon,
+  UserIcon
+} from '../components/icons';
 
 function currentTime(): string {
   const now = new Date();
@@ -104,11 +116,9 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
   return (
     <div className="notion-dashboard">
       <div className="dashboard-welcome">
-        <h1 className="dashboard-title">
-          <span className="wave-icon">👋</span> 오늘 대시보드
-        </h1>
+        <h1 className="dashboard-title">오늘 대시보드</h1>
         <p className="dashboard-subtitle">
-          {today} ({DAY_LABELS[dayOfWeek]}요일) — 학원 실시간 출결 및 일정 현황을 한눈에 확인하세요.
+          {today} ({DAY_LABELS[dayOfWeek]}요일) — 학원 실시간 출결 및 일정 현황
         </p>
       </div>
 
@@ -116,7 +126,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
       <div className="notion-metrics-grid">
         <div className="notion-metric-card green">
           <div className="metric-header">
-            <span className="metric-icon">🟢</span>
+            <CheckCircleIcon size={16} color="#2ea043" />
             <span className="metric-label">등원 완료</span>
           </div>
           <div className="metric-value">
@@ -129,7 +139,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
 
         <div className="notion-metric-card orange">
           <div className="metric-header">
-            <span className="metric-icon">🟡</span>
+            <AttendanceIcon size={16} color="#f59e0b" />
             <span className="metric-label">미등원 대기</span>
           </div>
           <div className="metric-value">{uncheckInCount}명</div>
@@ -138,7 +148,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
 
         <div className="notion-metric-card red">
           <div className="metric-header">
-            <span className="metric-icon">⚠️</span>
+            <AlertCircleIcon size={16} color="#ef4444" />
             <span className="metric-label">지연 알림 대상</span>
           </div>
           <div className="metric-value">{overdueEntries.length}명</div>
@@ -147,7 +157,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
 
         <div className="notion-metric-card blue">
           <div className="metric-header">
-            <span className="metric-icon">📚</span>
+            <ClassIcon size={16} color="#2383e2" />
             <span className="metric-label">오늘 총 세션</span>
           </div>
           <div className="metric-value">{todayClasses.length + todayClinics.length}개</div>
@@ -162,7 +172,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
           <div className="notion-card-block">
             <div className="block-header">
               <div className="block-title">
-                <span className="icon">⏱️</span>
+                <AttendanceIcon size={16} color="var(--text-main)" />
                 <h3>오늘의 출결 명단</h3>
                 <span className="badge-count">{roster.length}</span>
               </div>
@@ -184,7 +194,9 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
                       className={`roster-row-card ${entry.checkedIn ? 'checked-in' : isOverdue ? 'overdue' : 'waiting'}`}
                     >
                       <div className="roster-student-info">
-                        <span className="student-name">🎓 {entry.studentName}</span>
+                        <span className="student-name">
+                          <StudentIcon size={14} className="inline-icon" /> {entry.studentName}
+                        </span>
                         <span className="session-label">{entry.label}</span>
                       </div>
                       <div className="roster-time-col">
@@ -196,7 +208,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
                         {entry.checkedIn ? (
                           <span className="notion-tag green">등원 완료 ({entry.checkInTime})</span>
                         ) : isOverdue ? (
-                          <span className="notion-tag red">등원 지연 ⚠️</span>
+                          <span className="notion-tag red">등원 지연</span>
                         ) : (
                           <span className="notion-tag orange">미등원</span>
                         )}
@@ -226,7 +238,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
           <div className="notion-card-block">
             <div className="block-header">
               <div className="block-title">
-                <span className="icon">📝</span>
+                <HandoverIcon size={16} color="var(--text-main)" />
                 <h3>인수인계 메모</h3>
                 <span className="badge-count">{todayNotes.length}</span>
               </div>
@@ -259,7 +271,9 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
                 todayNotes.map((note) => (
                   <div key={note.id} className="dashboard-note-item">
                     <div className="note-top">
-                      <strong className="note-author">👤 {note.author}</strong>
+                      <strong className="note-author">
+                        <UserIcon size={12} className="inline-icon" /> {note.author}
+                      </strong>
                       <span className="note-date">{note.date}</span>
                     </div>
                     <p className="note-content">{note.content}</p>
@@ -273,7 +287,7 @@ export function DashboardPage({ onNavigateTab }: DashboardPageProps) {
           <div className="notion-card-block" style={{ marginTop: '20px' }}>
             <div className="block-header">
               <div className="block-title">
-                <span className="icon">🗓️</span>
+                <CalendarIcon size={16} color="var(--text-main)" />
                 <h3>오늘의 수업 및 클리닉</h3>
               </div>
               <button className="notion-text-link" onClick={() => onNavigateTab('calendar')}>

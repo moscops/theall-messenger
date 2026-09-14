@@ -4,6 +4,10 @@ import { classesApi, clinicsApi, exceptionsApi, handoverNotesApi, studentsApi } 
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { DAY_LABELS } from '../dayOfWeek';
+import {
+  CalendarIcon,
+  CloseIcon
+} from '../components/icons';
 
 interface DayEvent {
   id: string;
@@ -181,7 +185,8 @@ export function CalendarPage() {
       <div className="calendar-header-bar">
         <div className="calendar-title-group">
           <h2>
-            🗓️ {year}년 {month + 1}월
+            <CalendarIcon size={20} className="inline-icon" />
+            <span>{year}년 {month + 1}월</span>
           </h2>
           <div className="calendar-nav-buttons">
             <button type="button" onClick={prevMonth} className="cal-nav-btn">
@@ -238,12 +243,6 @@ export function CalendarPage() {
               <div className="day-events-list">
                 {events.slice(0, 3).map((ev) => (
                   <div key={ev.id} className={`cal-event-pill ${ev.type}`} title={ev.title + (ev.sub ? ` - ${ev.sub}` : '')}>
-                    {ev.type === 'class' && '📚 '}
-                    {ev.type === 'clinic' && '🔬 '}
-                    {ev.type === 'absence' && '❌ '}
-                    {ev.type === 'makeup' && '⭐️ '}
-                    {ev.type === 'reschedule' && '🔄 '}
-                    {ev.type === 'handover' && '📝 '}
                     <span className="pill-text">{ev.title}</span>
                   </div>
                 ))}
@@ -262,10 +261,10 @@ export function CalendarPage() {
           <div className="calendar-detail-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>
-                🗓️ {selectedDay} ({DAY_LABELS[new Date(selectedDay + 'T00:00:00').getDay()]}요일) 전체 일정
+                {selectedDay} ({DAY_LABELS[new Date(selectedDay + 'T00:00:00').getDay()]}요일) 전체 일정
               </h3>
               <button className="modal-close" onClick={() => setSelectedDay(null)}>
-                ✕
+                <CloseIcon size={16} />
               </button>
             </div>
 
@@ -287,7 +286,7 @@ export function CalendarPage() {
                         </div>
                         <h4 className="event-title">{ev.title}</h4>
                       </div>
-                      {ev.time && <div className="event-time">⏰ {ev.time}</div>}
+                      {ev.time && <div className="event-time">시간: {ev.time}</div>}
                       {ev.sub && <div className="event-sub">{ev.sub}</div>}
                     </div>
                   ))}

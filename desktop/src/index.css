@@ -199,60 +199,47 @@ span {
   color: var(--text-main);
 }
 
-/* Notion Emoji Icons via data-tab attribute */
-.sidebar-nav button[data-tab='dashboard']::before {
-  content: '🏠';
-  margin-right: 8px;
-  font-size: 14px;
+/* SVG Nav Icon Styling */
+.nav-icon {
+  margin-right: 9px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: color 0.12s ease;
 }
 
-.sidebar-nav button[data-tab='calendar']::before {
-  content: '🗓️';
-  margin-right: 8px;
-  font-size: 14px;
+.sidebar-nav button:hover .nav-icon,
+.nav-tab-btn:hover .nav-icon {
+  color: var(--text-main);
 }
 
-.sidebar-nav button[data-tab='students']::before {
-  content: '🎓';
-  margin-right: 8px;
-  font-size: 14px;
+.sidebar-nav button.active .nav-icon,
+.nav-tab-btn.active .nav-icon {
+  color: #2383e2;
 }
 
-.sidebar-nav button[data-tab='classes']::before {
-  content: '📚';
-  margin-right: 8px;
-  font-size: 14px;
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
 }
 
-.sidebar-nav button[data-tab='clinics']::before {
-  content: '🔬';
-  margin-right: 8px;
-  font-size: 14px;
+.search-box-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.sidebar-nav button[data-tab='attendance']::before {
-  content: '⏱️';
-  margin-right: 8px;
-  font-size: 14px;
+.search-box-wrapper .search-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
-.sidebar-nav button[data-tab='exceptions']::before {
-  content: '🗓️';
-  margin-right: 8px;
-  font-size: 14px;
+.search-box-wrapper .notion-search-input {
+  padding-left: 28px;
 }
 
-.sidebar-nav button[data-tab='comments']::before {
-  content: '💬';
-  margin-right: 8px;
-  font-size: 14px;
-}
-
-.sidebar-nav button[data-tab='handover']::before {
-  content: '📝';
-  margin-right: 8px;
-  font-size: 14px;
-}
 
 .sidebar-footer {
   margin-top: auto;

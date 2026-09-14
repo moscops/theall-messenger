@@ -6,6 +6,7 @@ import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
 import { StudentMultiSelect } from '../components/StudentMultiSelect';
 import { StudentDetailPanel } from '../components/StudentDetailPanel';
+import { PlusIcon, SearchIcon, StudentIcon } from '../components/icons';
 
 const emptyForm: StudentInput = { name: '' };
 
@@ -137,13 +138,16 @@ export function StudentsPage() {
       <div className="notion-page-header">
         <h2>학생</h2>
         <div className="notion-header-actions">
-          <input
-            type="text"
-            className="notion-search-input"
-            placeholder="학생 필터 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="search-box-wrapper">
+            <SearchIcon size={14} className="search-icon" />
+            <input
+              type="text"
+              className="notion-search-input"
+              placeholder="학생 필터 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           <button
             type="button"
             className="notion-primary-btn"
@@ -153,12 +157,13 @@ export function StudentsPage() {
               setIsFormOpen(!isFormOpen);
             }}
           >
-            {isFormOpen ? '폼 닫기' : '+ 학생 등록'}
+            <PlusIcon size={13} className="inline-icon" />
+            <span>{isFormOpen ? '폼 닫기' : '학생 등록'}</span>
           </button>
         </div>
       </div>
 
-      <p className="notion-hint-text">💡 학생 이름을 클릭하면 우측에서 상세 인적사항, 수강 수업, 코멘트를 확인할 수 있습니다.</p>
+      <p className="notion-hint-text">학생 이름을 클릭하면 우측에서 상세 인적사항, 수강 수업, 코멘트를 확인할 수 있습니다.</p>
 
       {/* Notion Database Table */}
       <div className="notion-table-container">
@@ -180,7 +185,8 @@ export function StudentsPage() {
               >
                 <td>
                   <span className="notion-row-title">
-                    <span className="row-icon">🎓</span> {student.name}
+                    <StudentIcon size={15} color="var(--text-secondary)" className="inline-icon" />
+                    <span>{student.name}</span>
                   </span>
                 </td>
                 <td>{student.grade ?? ''}</td>

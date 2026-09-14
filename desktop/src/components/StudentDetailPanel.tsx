@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import type { Class, ClinicAssignment, ScheduleException, Student, StudentComment } from '@theall/shared';
 import { DAY_LABELS } from '../dayOfWeek';
+import {
+  ClassIcon,
+  ClinicIcon,
+  CloseIcon,
+  CommentIcon,
+  ExceptionIcon,
+  StudentIcon,
+  UserIcon
+} from './icons';
 
 interface StudentDetailPanelProps {
   student: Student;
@@ -62,52 +71,57 @@ export function StudentDetailPanel({
       <div className="notion-side-peek" onClick={(e) => e.stopPropagation()}>
         {/* Top Action Bar */}
         <div className="peek-header">
-          <div className="peek-badge">학생 페이지</div>
+          <div className="peek-badge">
+            <StudentIcon size={13} className="inline-icon" />
+            <span>학생 페이지</span>
+          </div>
           <div className="peek-actions">
-            <button className="peek-action-btn" onClick={() => onEdit(student)}>
-              ✏️ 수정
+            <button type="button" className="peek-action-btn" onClick={() => onEdit(student)}>
+              수정
             </button>
-            <button className="peek-action-btn danger" onClick={() => onDelete(student.id)}>
-              🗑️ 삭제
+            <button type="button" className="peek-action-btn danger" onClick={() => onDelete(student.id)}>
+              삭제
             </button>
-            <button className="peek-close-btn" onClick={onClose} title="닫기">
-              ✕
+            <button type="button" className="peek-close-btn" onClick={onClose} title="닫기">
+              <CloseIcon size={16} />
             </button>
           </div>
         </div>
 
         {/* Title / Hero */}
         <div className="peek-hero">
-          <div className="peek-icon">🎓</div>
+          <div className="peek-icon-box">
+            <StudentIcon size={26} color="#2383e2" />
+          </div>
           <h1 className="peek-title">{student.name}</h1>
         </div>
 
         {/* Properties Table (Notion Property Style) */}
         <div className="peek-properties">
           <div className="peek-property-row">
-            <span className="prop-name">🏷️ 학년/반</span>
+            <span className="prop-name">학년/반</span>
             <span className="prop-val">{student.grade || <span className="empty-val">미입력</span>}</span>
           </div>
           <div className="peek-property-row">
-            <span className="prop-name">🏫 학교</span>
+            <span className="prop-name">학교</span>
             <span className="prop-val">{student.schoolName || <span className="empty-val">미입력</span>}</span>
           </div>
           <div className="peek-property-row">
-            <span className="prop-name">🚻 성별</span>
+            <span className="prop-name">성별</span>
             <span className="prop-val">
               {student.gender === 'male' ? '남학생' : student.gender === 'female' ? '여학생' : <span className="empty-val">미선택</span>}
             </span>
           </div>
           <div className="peek-property-row">
-            <span className="prop-name">📞 학생 연락처</span>
+            <span className="prop-name">학생 연락처</span>
             <span className="prop-val">{student.phone || <span className="empty-val">미입력</span>}</span>
           </div>
           <div className="peek-property-row">
-            <span className="prop-name">👨‍👩‍👧 학부모 연락처</span>
+            <span className="prop-name">학부모 연락처</span>
             <span className="prop-val">{student.parentPhone || <span className="empty-val">미입력</span>}</span>
           </div>
           <div className="peek-property-row">
-            <span className="prop-name">👫 형제자매</span>
+            <span className="prop-name">형제자매</span>
             <div className="prop-val-tags">
               {siblings.length > 0 ? (
                 siblings.map((sib) => (
@@ -117,7 +131,8 @@ export function StudentDetailPanel({
                     className="notion-relation-chip"
                     onClick={() => onSelectStudent(sib)}
                   >
-                    🎓 {sib.name} ({sib.grade || '학년미정'})
+                    <UserIcon size={12} className="inline-icon" />
+                    <span>{sib.name} ({sib.grade || '학년미정'})</span>
                   </button>
                 ))
               ) : (
@@ -133,22 +148,28 @@ export function StudentDetailPanel({
         {/* Sub Navigation Tabs */}
         <div className="peek-tabs">
           <button
+            type="button"
             className={`peek-tab ${activeSubTab === 'schedule' ? 'active' : ''}`}
             onClick={() => setActiveSubTab('schedule')}
           >
-            📚 수강 수업 및 클리닉 ({studentClasses.length + studentClinics.length})
+            <ClassIcon size={14} className="inline-icon" />
+            <span>수강 수업 및 클리닉 ({studentClasses.length + studentClinics.length})</span>
           </button>
           <button
+            type="button"
             className={`peek-tab ${activeSubTab === 'exceptions' ? 'active' : ''}`}
             onClick={() => setActiveSubTab('exceptions')}
           >
-            🗓️ 예외 이력 ({studentExceptions.length})
+            <ExceptionIcon size={14} className="inline-icon" />
+            <span>예외 이력 ({studentExceptions.length})</span>
           </button>
           <button
+            type="button"
             className={`peek-tab ${activeSubTab === 'comments' ? 'active' : ''}`}
             onClick={() => setActiveSubTab('comments')}
           >
-            💬 코멘트 ({studentComments.length})
+            <CommentIcon size={14} className="inline-icon" />
+            <span>코멘트 ({studentComments.length})</span>
           </button>
         </div>
 
@@ -269,7 +290,9 @@ export function StudentDetailPanel({
                   studentComments.map((comm) => (
                     <div key={comm.id} className="peek-comment-card">
                       <div className="comment-header">
-                        <span className="comment-author">👤 {comm.author}</span>
+                        <span className="comment-author">
+                          <UserIcon size={12} className="inline-icon" /> {comm.author}
+                        </span>
                         {comm.date && <span className="comment-date">{comm.date}</span>}
                       </div>
                       <p className="comment-body">{comm.content}</p>
