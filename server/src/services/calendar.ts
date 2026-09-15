@@ -4,6 +4,7 @@ import type { CalendarEvent } from '@theall/shared';
 interface ClassSlotRow {
   class_id: string;
   class_name: string;
+  slot_id: string;
   start_time: string;
   end_time: string;
   student_id: string;
@@ -23,6 +24,7 @@ interface ExceptionOutRow {
   target_type: string;
   target_id: string;
   exception_type: 'absence' | 'reschedule';
+  class_schedule_slot_id: string | null;
 }
 
 interface ExceptionInRow {
@@ -36,6 +38,15 @@ interface ExceptionInRow {
   label: string;
 }
 
+// A calendar candidate carries the class_schedule_slots.id it came from
+// (class rows only — a clinic assignment has no separate slot concept, the
+// clinic_assignments row IS the slot). slotId is used only to match a
+// schedule exception to the exact occurrence it targets; it is stripped
+// before the event is returned, since CalendarEvent has no slot-id field.
+interface CalendarCandidate extends CalendarEvent {
+  slotId?: string;
+}
+
 // Dates are interpreted in the server's local timezone, matching
 // computeRoster's simplification for this single-LAN, single-locale tool.
 function computeEventsForDate(db: Database.Database, date: string): CalendarEvent[] {
@@ -43,7 +54,7 @@ function computeEventsForDate(db: Database.Database, date: string): CalendarEven
 
   const classRows = db
     .prepare(
-      `SELECT c.id as class_id, c.name as class_name, s.start_time, s.end_time,
+      `SELECT c.id as class_id, c.name as class_name, s.id as slot_id, s.start_time, s.end_time,
               e.student_id, st.name as student_name
        FROM class_schedule_slots s
        JOIN classes c ON c.id = s.class_id
@@ -62,13 +73,14 @@ function computeEventsForDate(db: Database.Database, date: string): CalendarEven
     )
     .all(dayOfWeek) as ClinicSlotRow[];
 
-  let events: CalendarEvent[] = [
+  let events: CalendarCandidate[] = [
     ...classRows.map((row) => ({
       date,
       studentId: row.student_id,
       studentName: row.student_name,
       source: 'class' as const,
       sourceId: row.class_id,
+      slotId: row.slot_id,
       category: 'regular_class' as const,
       label: row.class_name,
       startTime: row.start_time,
@@ -89,14 +101,23 @@ function computeEventsForDate(db: Database.Database, date: string): CalendarEven
 
   const exceptionsForDate = db
     .prepare(
-      `SELECT student_id, target_type, target_id, exception_type FROM schedule_exceptions
+      `SELECT student_id, target_type, target_id, exception_type, class_schedule_slot_id FROM schedule_exceptions
        WHERE date = ? AND exception_type IN ('absence', 'reschedule')`
     )
     .all(date) as ExceptionOutRow[];
 
-  events = events.reduce<CalendarEvent[]>((acc, event) => {
+  events = events.reduce<CalendarCandidate[]>((acc, event) => {
+    // An exception with no class_schedule_slot_id matches every slot of the
+    // target class (the original, pre-slot-targeting behavior). One with a
+    // class_schedule_slot_id matches only that one slot — this is what
+    // fixes classes with two or more same-weekday slots losing every
+    // occurrence to a single exception.
     const matches = exceptionsForDate.filter(
-      (ex) => ex.student_id === event.studentId && ex.target_type === event.source && ex.target_id === event.sourceId
+      (ex) =>
+        ex.student_id === event.studentId &&
+        ex.target_type === event.source &&
+        ex.target_id === event.sourceId &&
+        (ex.class_schedule_slot_id === null || ex.class_schedule_slot_id === event.slotId)
     );
     const match = matches.find((ex) => ex.exception_type === 'reschedule') ?? matches[0];
     if (!match) {
@@ -137,7 +158,7 @@ function computeEventsForDate(db: Database.Database, date: string): CalendarEven
     });
   }
 
-  return events;
+  return events.map(({ slotId, ...publicEvent }) => publicEvent);
 }
 
 function enumerateDates(from: string, to: string): string[] {

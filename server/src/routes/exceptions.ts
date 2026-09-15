@@ -17,6 +17,16 @@ export function createExceptionsRouter(
     return targetType === 'class' ? Boolean(classRepo.getById(targetId)) : Boolean(clinicRepo.getById(targetId));
   }
 
+  // A classScheduleSlotId only makes sense for a class target, and only when
+  // it actually names one of that class's schedule slots. No slot id at all
+  // is always valid — it means "match every slot of this class."
+  function slotBelongsToClass(targetType: string, targetId: string, classScheduleSlotId: string | undefined): boolean {
+    if (!classScheduleSlotId) return true;
+    if (targetType !== 'class') return false;
+    const klass = classRepo.getById(targetId);
+    return Boolean(klass?.schedule.some((slot) => slot.id === classScheduleSlotId));
+  }
+
   router.get('/', (_req, res) => {
     const response: ApiResponse<ScheduleException[]> = { success: true, data: repo.list() };
     res.json(response);
@@ -31,6 +41,11 @@ export function createExceptionsRouter(
     }
     if (!targetExists(parsed.data.targetType, parsed.data.targetId)) {
       const response: ApiResponse<never> = { success: false, error: 'target not found' };
+      res.status(400).json(response);
+      return;
+    }
+    if (!slotBelongsToClass(parsed.data.targetType, parsed.data.targetId, parsed.data.classScheduleSlotId)) {
+      const response: ApiResponse<never> = { success: false, error: 'classScheduleSlotId does not belong to the target class' };
       res.status(400).json(response);
       return;
     }
@@ -49,6 +64,11 @@ export function createExceptionsRouter(
     }
     if (!targetExists(parsed.data.targetType, parsed.data.targetId)) {
       const response: ApiResponse<never> = { success: false, error: 'target not found' };
+      res.status(400).json(response);
+      return;
+    }
+    if (!slotBelongsToClass(parsed.data.targetType, parsed.data.targetId, parsed.data.classScheduleSlotId)) {
+      const response: ApiResponse<never> = { success: false, error: 'classScheduleSlotId does not belong to the target class' };
       res.status(400).json(response);
       return;
     }

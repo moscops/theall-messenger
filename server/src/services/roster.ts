@@ -4,6 +4,7 @@ import type { RosterEntry } from '@theall/shared';
 interface ClassSlotRow {
   class_id: string;
   class_name: string;
+  slot_id: string;
   start_time: string;
   end_time: string;
   student_id: string;
@@ -22,6 +23,7 @@ interface ExceptionOutRow {
   student_id: string;
   target_type: string;
   target_id: string;
+  class_schedule_slot_id: string | null;
 }
 
 interface ExceptionInRow {
@@ -39,6 +41,15 @@ interface AttendanceRow {
   check_in_time: string;
 }
 
+// A roster candidate carries the class_schedule_slots.id it came from
+// (class rows only — a clinic assignment has no separate slot concept, the
+// clinic_assignments row IS the slot). slotId is used only to match a
+// schedule exception to the exact occurrence it targets; it is stripped
+// before the entry is returned, since RosterEntry has no slot-id field.
+interface RosterCandidate extends RosterEntry {
+  slotId?: string;
+}
+
 // Dates are interpreted in the server's local timezone. This is a
 // single-LAN internal tool where the server and its users share one
 // locale, so that's an acceptable simplification.
@@ -47,7 +58,7 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
 
   const classRows = db
     .prepare(
-      `SELECT c.id as class_id, c.name as class_name, s.start_time, s.end_time,
+      `SELECT c.id as class_id, c.name as class_name, s.id as slot_id, s.start_time, s.end_time,
               e.student_id, st.name as student_name
        FROM class_schedule_slots s
        JOIN classes c ON c.id = s.class_id
@@ -66,12 +77,13 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
     )
     .all(dayOfWeek) as ClinicSlotRow[];
 
-  let entries: RosterEntry[] = [
+  let entries: RosterCandidate[] = [
     ...classRows.map((row) => ({
       studentId: row.student_id,
       studentName: row.student_name,
       source: 'class' as const,
       sourceId: row.class_id,
+      slotId: row.slot_id,
       label: row.class_name,
       startTime: row.start_time,
       endTime: row.end_time,
@@ -91,15 +103,25 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
 
   const removals = db
     .prepare(
-      `SELECT student_id, target_type, target_id FROM schedule_exceptions
+      `SELECT student_id, target_type, target_id, class_schedule_slot_id FROM schedule_exceptions
        WHERE date = ? AND exception_type IN ('absence', 'reschedule')`
     )
     .all(date) as ExceptionOutRow[];
 
+  // An exception with no class_schedule_slot_id matches every slot of the
+  // target class (the original, pre-slot-targeting behavior — kept as the
+  // default for clinics and for exceptions that don't target a specific
+  // slot). An exception with a class_schedule_slot_id matches only that one
+  // slot — this is what fixes classes with two or more same-weekday slots
+  // losing every occurrence to a single exception.
   entries = entries.filter(
     (entry) =>
       !removals.some(
-        (ex) => ex.student_id === entry.studentId && ex.target_type === entry.source && ex.target_id === entry.sourceId
+        (ex) =>
+          ex.student_id === entry.studentId &&
+          ex.target_type === entry.source &&
+          ex.target_id === entry.sourceId &&
+          (ex.class_schedule_slot_id === null || ex.class_schedule_slot_id === entry.slotId)
       )
   );
 
@@ -138,7 +160,7 @@ export function computeRoster(db: Database.Database, date: string): RosterEntry[
     return checkInTime ? { ...entry, checkedIn: true, checkInTime } : entry;
   });
 
-  return entries.sort(
-    (a, b) => a.startTime.localeCompare(b.startTime) || a.studentName.localeCompare(b.studentName)
-  );
+  return entries
+    .map(({ slotId, ...publicEntry }) => publicEntry)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime) || a.studentName.localeCompare(b.studentName));
 }

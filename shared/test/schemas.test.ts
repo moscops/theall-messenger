@@ -135,6 +135,33 @@ describe('scheduleExceptionInputSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts an absence with a classScheduleSlotId', () => {
+    const result = scheduleExceptionInputSchema.safeParse({
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      classScheduleSlotId: 'slot1',
+      exceptionType: 'absence',
+      date: '2026-09-15'
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.classScheduleSlotId).toBe('slot1');
+    }
+  });
+
+  it('rejects an empty string classScheduleSlotId', () => {
+    const result = scheduleExceptionInputSchema.safeParse({
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      classScheduleSlotId: '',
+      exceptionType: 'absence',
+      date: '2026-09-15'
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('studentCommentInputSchema', () => {

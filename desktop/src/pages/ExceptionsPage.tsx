@@ -9,6 +9,7 @@ import type {
 import { classesApi, clinicsApi, exceptionsApi, studentsApi } from '../api/client';
 import { useLiveRefresh } from '../api/useLiveRefresh';
 import { logger } from '../logger';
+import { formatDayOfWeek } from '../dayOfWeek';
 
 const emptyForm: ScheduleExceptionInput = {
   studentId: '',
@@ -82,6 +83,8 @@ export function ExceptionsPage() {
 
   const targetOptions: Array<Class | ClinicAssignment> = form.targetType === 'class' ? classes : clinics;
   const needsNewTime = form.exceptionType === 'reschedule' || form.exceptionType === 'makeup';
+  const selectedClass = form.targetType === 'class' ? classes.find((c) => c.id === form.targetId) : undefined;
+  const showSlotPicker = Boolean(selectedClass && selectedClass.schedule.length > 1);
 
   return (
     <div>
@@ -129,13 +132,22 @@ export function ExceptionsPage() {
         <select
           value={form.targetType}
           onChange={(e) =>
-            setForm({ ...form, targetType: e.target.value as ScheduleExceptionInput['targetType'], targetId: '' })
+            setForm({
+              ...form,
+              targetType: e.target.value as ScheduleExceptionInput['targetType'],
+              targetId: '',
+              classScheduleSlotId: undefined
+            })
           }
         >
           <option value="class">수업</option>
           <option value="clinic">클리닉</option>
         </select>
-        <select value={form.targetId} onChange={(e) => setForm({ ...form, targetId: e.target.value })} required>
+        <select
+          value={form.targetId}
+          onChange={(e) => setForm({ ...form, targetId: e.target.value, classScheduleSlotId: undefined })}
+          required
+        >
           <option value="">대상 선택</option>
           {targetOptions.map((target) => (
             <option key={target.id} value={target.id}>
@@ -145,6 +157,19 @@ export function ExceptionsPage() {
             </option>
           ))}
         </select>
+        {showSlotPicker && (
+          <select
+            value={form.classScheduleSlotId ?? ''}
+            onChange={(e) => setForm({ ...form, classScheduleSlotId: e.target.value || undefined })}
+          >
+            <option value="">전체 시간대</option>
+            {selectedClass!.schedule.map((slot) => (
+              <option key={slot.id} value={slot.id}>
+                {formatDayOfWeek(slot.dayOfWeek)} {slot.startTime}-{slot.endTime}
+              </option>
+            ))}
+          </select>
+        )}
         <select
           value={form.exceptionType}
           onChange={(e) =>

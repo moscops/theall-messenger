@@ -103,4 +103,74 @@ describe('/exceptions', () => {
     const deleteRes = await request(app).delete(`/exceptions/${createRes.body.data.id}`);
     expect(deleteRes.status).toBe(200);
   });
+
+  it('accepts an exception with a classScheduleSlotId that belongs to the target class', async () => {
+    const { app } = buildApp();
+    const studentRes = await request(app).post('/students').send({ name: '김민준' });
+    const classRes = await request(app)
+      .post('/classes')
+      .send({
+        name: '중2 수학',
+        teacherName: '김선생',
+        schedule: [
+          { dayOfWeek: 2, startTime: '16:00', endTime: '17:30' },
+          { dayOfWeek: 2, startTime: '18:00', endTime: '19:30' }
+        ]
+      });
+    const classId = classRes.body.data.id;
+    const slotId = classRes.body.data.schedule[0].id;
+
+    const res = await request(app)
+      .post('/exceptions')
+      .send({
+        studentId: studentRes.body.data.id,
+        targetType: 'class',
+        targetId: classId,
+        classScheduleSlotId: slotId,
+        exceptionType: 'absence',
+        date: '2026-09-15'
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.classScheduleSlotId).toBe(slotId);
+  });
+
+  it('rejects an exception whose classScheduleSlotId does not belong to the target class', async () => {
+    const { app } = buildApp();
+    const classId = await createClass(app);
+
+    const res = await request(app)
+      .post('/exceptions')
+      .send({
+        studentId: 's1',
+        targetType: 'class',
+        targetId: classId,
+        classScheduleSlotId: 'does-not-exist',
+        exceptionType: 'absence',
+        date: '2026-09-15'
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a classScheduleSlotId on a clinic-targeted exception', async () => {
+    const { app } = buildApp();
+    const studentRes = await request(app).post('/students').send({ name: '김민준' });
+    const clinicRes = await request(app)
+      .post('/clinics')
+      .send({ studentId: studentRes.body.data.id, dayOfWeek: 2, startTime: '18:00', endTime: '19:00' });
+
+    const res = await request(app)
+      .post('/exceptions')
+      .send({
+        studentId: studentRes.body.data.id,
+        targetType: 'clinic',
+        targetId: clinicRes.body.data.id,
+        classScheduleSlotId: 'some-slot',
+        exceptionType: 'absence',
+        date: '2026-09-15'
+      });
+
+    expect(res.status).toBe(400);
+  });
 });
