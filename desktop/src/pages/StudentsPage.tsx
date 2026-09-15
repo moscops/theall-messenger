@@ -548,8 +548,12 @@ export function StudentsPage() {
 
                     {/* 6. 관리 버튼 */}
                     <td onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => handleEdit(student)}>수정</button>
-                      <button onClick={() => handleDelete(student.id)}>삭제</button>
+                      <button className="btn-edit" onClick={() => handleEdit(student)}>
+                        수정
+                      </button>
+                      <button className="btn-delete" onClick={() => handleDelete(student.id)}>
+                        삭제
+                      </button>
                     </td>
                   </tr>
                 );

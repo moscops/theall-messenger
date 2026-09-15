@@ -62,11 +62,16 @@ export function HandoverNotesPage() {
     <div>
       <h2>인수인계 메모</h2>
       <ul>
+        {notes.length === 0 && <li className="empty-state">아직 등록된 인수인계 메모가 없습니다.</li>}
         {notes.map((note) => (
           <li key={note.id}>
             [{note.date}] {note.author}: {note.content}
-            <button onClick={() => handleEdit(note)}>수정</button>
-            <button onClick={() => handleDelete(note.id)}>삭제</button>
+            <button className="btn-edit" onClick={() => handleEdit(note)}>
+              수정
+            </button>
+            <button className="btn-delete" onClick={() => handleDelete(note.id)}>
+              삭제
+            </button>
           </li>
         ))}
       </ul>

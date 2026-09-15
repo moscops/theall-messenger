@@ -123,6 +123,13 @@ export function ExceptionsPage() {
           </tr>
         </thead>
         <tbody>
+          {exceptions.length === 0 && (
+            <tr>
+              <td colSpan={6} className="empty-state">
+                아직 등록된 일정 예외가 없습니다.
+              </td>
+            </tr>
+          )}
           {exceptions.map((exception) => (
             <tr key={exception.id}>
               <td>{studentName(exception.studentId)}</td>
@@ -131,8 +138,12 @@ export function ExceptionsPage() {
               <td>{exception.date}</td>
               <td>{exception.reason}</td>
               <td>
-                <button onClick={() => handleEdit(exception)}>수정</button>
-                <button onClick={() => handleDelete(exception.id)}>삭제</button>
+                <button className="btn-edit" onClick={() => handleEdit(exception)}>
+                  수정
+                </button>
+                <button className="btn-delete" onClick={() => handleDelete(exception.id)}>
+                  삭제
+                </button>
               </td>
             </tr>
           ))}

@@ -101,8 +101,12 @@ export function ClassesPage() {
                   .join(', ')}
               </td>
               <td>
-                <button onClick={() => handleEdit(klass)}>수정</button>
-                <button onClick={() => handleDelete(klass.id)}>삭제</button>
+                <button className="btn-edit" onClick={() => handleEdit(klass)}>
+                  수정
+                </button>
+                <button className="btn-delete" onClick={() => handleDelete(klass.id)}>
+                  삭제
+                </button>
               </td>
             </tr>
           ))}

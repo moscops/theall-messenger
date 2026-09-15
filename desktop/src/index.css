@@ -396,10 +396,10 @@ table {
   border-spacing: 0;
   background: #fff;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
   margin-bottom: 24px;
-  box-shadow: none;
+  box-shadow: rgba(15, 15, 15, 0.03) 0px 1px 3px;
 }
 
 th,
@@ -429,8 +429,12 @@ tr:last-child td {
   border-bottom: none;
 }
 
+tr {
+  transition: background 0.15s ease;
+}
+
 tr:hover td {
-  background: rgba(55, 53, 47, 0.03);
+  background: rgba(55, 53, 47, 0.035);
 }
 
 .notion-clickable-row {
@@ -522,7 +526,7 @@ form {
   align-items: center;
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 20px;
   box-shadow: none;
@@ -541,7 +545,7 @@ select,
 textarea {
   padding: 6px 10px;
   border: 1px solid var(--border-dark);
-  border-radius: 4px;
+  border-radius: 7px;
   font-size: 13px;
   color: var(--text-main);
   background: #fff;
@@ -575,7 +579,7 @@ label {
 
 button {
   padding: 5px 12px;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid var(--border-dark);
   background: #ffffff;
   color: var(--text-main);
@@ -596,7 +600,7 @@ button[type='submit'] {
   border-color: #1c6ec0;
   color: #ffffff;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: 0 1px 2px rgba(35, 131, 226, 0.2);
 }
 
@@ -609,7 +613,7 @@ table button {
   padding: 3px 8px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-right: 6px;
   background: #ffffff;
   color: var(--text-main);
@@ -620,17 +624,45 @@ table button:hover {
   background: #f5f5f4;
 }
 
-td > button,
+/* Semantic action buttons — explicit classes, not table-position rules, so a
+   row's edit/delete/checkin buttons never accidentally share one look. */
+.btn-edit {
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-text);
+  border: 1px solid var(--tag-blue-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.btn-edit:hover {
+  background: #d9e9ff;
+}
+
+.btn-delete {
+  background: var(--tag-red-bg);
+  color: var(--tag-red-text);
+  border: 1px solid var(--tag-red-border);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.btn-delete:hover {
+  background: #fbd5d5;
+}
+
+.btn-checkin,
 .notion-checkin-btn {
   background: var(--tag-green-bg);
   color: var(--tag-green-text);
   border: 1px solid var(--tag-green-border);
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
-td > button:hover,
+.btn-checkin:hover,
 .notion-checkin-btn:hover {
   background: #d8eed4;
 }
@@ -1622,13 +1654,23 @@ ul li:hover {
 ul li button {
   padding: 4px 10px;
   font-size: 12px;
-  color: var(--tag-red-text);
-  background: #ffffff;
-  border: 1px solid var(--tag-red-border);
+  margin-left: 6px;
 }
 
-ul li button:hover {
-  background: var(--tag-red-bg);
+/* Friendly placeholder for an empty table body or card list, instead of
+   just showing nothing. */
+.empty-state {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 12px;
+}
+
+ul li.empty-state {
+  border: none;
+  box-shadow: none;
+  justify-content: center;
+  background: transparent;
 }
 
 /* Custom Scrollbar */

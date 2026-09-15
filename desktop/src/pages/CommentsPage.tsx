@@ -83,12 +83,17 @@ export function CommentsPage() {
         ))}
       </select>
       <ul>
+        {visibleComments.length === 0 && <li className="empty-state">아직 등록된 코멘트가 없습니다.</li>}
         {visibleComments.map((comment) => (
           <li key={comment.id}>
             [{studentName(comment.studentId)}] {comment.date ? `${comment.date} ` : ''}
             {comment.author}: {comment.content}
-            <button onClick={() => handleEdit(comment)}>수정</button>
-            <button onClick={() => handleDelete(comment.id)}>삭제</button>
+            <button className="btn-edit" onClick={() => handleEdit(comment)}>
+              수정
+            </button>
+            <button className="btn-delete" onClick={() => handleDelete(comment.id)}>
+              삭제
+            </button>
           </li>
         ))}
       </ul>

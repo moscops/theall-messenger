@@ -121,7 +121,13 @@ export function AttendancePage() {
                 {entry.startTime}-{entry.endTime}
               </td>
               <td>{entry.checkedIn ? `등원 완료 (${entry.checkInTime})` : '미등원'}</td>
-              <td>{!entry.checkedIn && <button onClick={() => handleCheckIn(entry.studentId)}>체크인</button>}</td>
+              <td>
+                {!entry.checkedIn && (
+                  <button className="btn-checkin" onClick={() => handleCheckIn(entry.studentId)}>
+                    체크인
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

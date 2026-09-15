@@ -94,8 +94,12 @@ export function ClinicPage() {
                 {formatDayOfWeek(assignment.dayOfWeek)} {assignment.startTime}-{assignment.endTime}
               </td>
               <td>
-                <button onClick={() => handleEdit(assignment)}>수정</button>
-                <button onClick={() => handleDelete(assignment.id)}>삭제</button>
+                <button className="btn-edit" onClick={() => handleEdit(assignment)}>
+                  수정
+                </button>
+                <button className="btn-delete" onClick={() => handleDelete(assignment.id)}>
+                  삭제
+                </button>
               </td>
             </tr>
           ))}
