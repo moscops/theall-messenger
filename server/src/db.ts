@@ -107,5 +107,13 @@ export function createDb(filePath: string): Database.Database {
       updated_at TEXT NOT NULL
     );
   `);
+
+  const exceptionCols = db.prepare('PRAGMA table_info(schedule_exceptions)').all() as { name: string }[];
+  if (!exceptionCols.some((c) => c.name === 'class_schedule_slot_id')) {
+    db.exec(
+      'ALTER TABLE schedule_exceptions ADD COLUMN class_schedule_slot_id TEXT REFERENCES class_schedule_slots(id) ON DELETE SET NULL'
+    );
+  }
+
   return db;
 }

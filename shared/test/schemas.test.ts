@@ -150,6 +150,18 @@ describe('scheduleExceptionInputSchema', () => {
       expect(result.data.classScheduleSlotId).toBe('slot1');
     }
   });
+
+  it('rejects an empty string classScheduleSlotId', () => {
+    const result = scheduleExceptionInputSchema.safeParse({
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      classScheduleSlotId: '',
+      exceptionType: 'absence',
+      date: '2026-09-15'
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('studentCommentInputSchema', () => {
