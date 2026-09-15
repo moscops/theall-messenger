@@ -229,4 +229,72 @@ describe('ExceptionsPage', () => {
     const [input] = vi.mocked(exceptionsApi.create).mock.calls[createCallsBefore];
     expect(input).toMatchObject({ targetId: 'c1', classScheduleSlotId: 'slot1' });
   });
+
+  it('edits an existing exception, preserving its classScheduleSlotId, and submits the update instead of creating a new one', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      { id: 's1', name: '김민준', siblingIds: [], createdAt: '', updatedAt: '' }
+    ]);
+    vi.mocked(classesApi.list).mockResolvedValue([
+      {
+        id: 'c1',
+        name: '중2 수학',
+        teacherName: '박선생',
+        schedule: [
+          { id: 'slot1', dayOfWeek: 1, startTime: '16:00', endTime: '17:30' },
+          { id: 'slot2', dayOfWeek: 1, startTime: '18:00', endTime: '19:30' }
+        ],
+        studentIds: [],
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+    vi.mocked(clinicsApi.list).mockResolvedValue([]);
+    vi.mocked(exceptionsApi.list).mockResolvedValue([
+      {
+        id: 'e1',
+        studentId: 's1',
+        targetType: 'class',
+        targetId: 'c1',
+        classScheduleSlotId: 'slot1',
+        exceptionType: 'absence',
+        date: '2026-09-15',
+        reason: '병원',
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+    vi.mocked(exceptionsApi.update).mockResolvedValue({
+      id: 'e1',
+      studentId: 's1',
+      targetType: 'class',
+      targetId: 'c1',
+      classScheduleSlotId: 'slot1',
+      exceptionType: 'absence',
+      date: '2026-09-16',
+      reason: '병원',
+      createdAt: '',
+      updatedAt: ''
+    });
+
+    render(<ExceptionsPage />);
+    const table = await screen.findByRole('table');
+
+    const createCallsBefore = vi.mocked(exceptionsApi.create).mock.calls.length;
+
+    await userEvent.click(within(table).getByText('수정'));
+
+    // The slot picker must reflect the exception's already-targeted slot, not reset to "전체 시간대".
+    expect(screen.getByDisplayValue('월요일 16:00-17:30')).toBeInTheDocument();
+
+    const dateInput = screen.getByDisplayValue('2026-09-15');
+    fireEvent.change(dateInput, { target: { value: '2026-09-16' } });
+
+    await userEvent.click(screen.getByText('수정 완료'));
+
+    await waitFor(() => expect(exceptionsApi.update).toHaveBeenCalled());
+    const [id, input] = vi.mocked(exceptionsApi.update).mock.calls[0];
+    expect(id).toBe('e1');
+    expect(input).toMatchObject({ classScheduleSlotId: 'slot1', date: '2026-09-16' });
+    expect(exceptionsApi.create).toHaveBeenCalledTimes(createCallsBefore);
+  });
 });

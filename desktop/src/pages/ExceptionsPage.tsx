@@ -31,6 +31,7 @@ export function ExceptionsPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [clinics, setClinics] = useState<ClinicAssignment[]>([]);
   const [form, setForm] = useState<ScheduleExceptionInput>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
@@ -58,8 +59,13 @@ export function ExceptionsPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await exceptionsApi.create(form);
+      if (editingId) {
+        await exceptionsApi.update(editingId, form);
+      } else {
+        await exceptionsApi.create(form);
+      }
       setForm(emptyForm);
+      setEditingId(null);
       setError(null);
       refresh();
     } catch (err: unknown) {
@@ -67,6 +73,22 @@ export function ExceptionsPage() {
       logger.error(err);
       setError(message);
     }
+  };
+
+  const handleEdit = (exception: ScheduleException) => {
+    setEditingId(exception.id);
+    setForm({
+      studentId: exception.studentId,
+      targetType: exception.targetType,
+      targetId: exception.targetId,
+      classScheduleSlotId: exception.classScheduleSlotId,
+      exceptionType: exception.exceptionType,
+      date: exception.date,
+      reason: exception.reason,
+      newDate: exception.newDate,
+      newStartTime: exception.newStartTime,
+      newEndTime: exception.newEndTime
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -109,6 +131,7 @@ export function ExceptionsPage() {
               <td>{exception.date}</td>
               <td>{exception.reason}</td>
               <td>
+                <button onClick={() => handleEdit(exception)}>수정</button>
                 <button onClick={() => handleDelete(exception.id)}>삭제</button>
               </td>
             </tr>
@@ -216,7 +239,7 @@ export function ExceptionsPage() {
             />
           </>
         )}
-        <button type="submit">추가</button>
+        <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>
   );

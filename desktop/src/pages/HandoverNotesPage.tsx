@@ -12,6 +12,7 @@ function emptyForm(): HandoverNoteInput {
 export function HandoverNotesPage() {
   const [notes, setNotes] = useState<HandoverNote[]>([]);
   const [form, setForm] = useState<HandoverNoteInput>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
@@ -24,8 +25,13 @@ export function HandoverNotesPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await handoverNotesApi.create(form);
-      setForm({ ...emptyForm(), author: form.author });
+      if (editingId) {
+        await handoverNotesApi.update(editingId, form);
+      } else {
+        await handoverNotesApi.create(form);
+      }
+      setForm(editingId ? emptyForm() : { ...emptyForm(), author: form.author });
+      setEditingId(null);
       setError(null);
       refresh();
     } catch (err: unknown) {
@@ -33,6 +39,11 @@ export function HandoverNotesPage() {
       logger.error(err);
       setError(message);
     }
+  };
+
+  const handleEdit = (note: HandoverNote) => {
+    setEditingId(note.id);
+    setForm({ date: note.date, author: note.author, content: note.content });
   };
 
   const handleDelete = async (id: string) => {
@@ -54,6 +65,7 @@ export function HandoverNotesPage() {
         {notes.map((note) => (
           <li key={note.id}>
             [{note.date}] {note.author}: {note.content}
+            <button onClick={() => handleEdit(note)}>수정</button>
             <button onClick={() => handleDelete(note.id)}>삭제</button>
           </li>
         ))}
@@ -73,7 +85,7 @@ export function HandoverNotesPage() {
           onChange={(e) => setForm({ ...form, content: e.target.value })}
           required
         />
-        <button type="submit">추가</button>
+        <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>
   );

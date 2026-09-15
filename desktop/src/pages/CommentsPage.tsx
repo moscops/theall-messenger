@@ -11,6 +11,7 @@ export function CommentsPage() {
   const [comments, setComments] = useState<StudentComment[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [form, setForm] = useState<StudentCommentInput>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
@@ -32,8 +33,13 @@ export function CommentsPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await commentsApi.create(form);
-      setForm({ ...emptyForm, studentId: form.studentId });
+      if (editingId) {
+        await commentsApi.update(editingId, form);
+      } else {
+        await commentsApi.create(form);
+      }
+      setForm(editingId ? emptyForm : { ...emptyForm, studentId: form.studentId });
+      setEditingId(null);
       setError(null);
       refresh();
     } catch (err: unknown) {
@@ -41,6 +47,16 @@ export function CommentsPage() {
       logger.error(err);
       setError(message);
     }
+  };
+
+  const handleEdit = (comment: StudentComment) => {
+    setEditingId(comment.id);
+    setForm({
+      studentId: comment.studentId,
+      date: comment.date,
+      author: comment.author,
+      content: comment.content
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -71,6 +87,7 @@ export function CommentsPage() {
           <li key={comment.id}>
             [{studentName(comment.studentId)}] {comment.date ? `${comment.date} ` : ''}
             {comment.author}: {comment.content}
+            <button onClick={() => handleEdit(comment)}>수정</button>
             <button onClick={() => handleDelete(comment.id)}>삭제</button>
           </li>
         ))}
@@ -102,7 +119,7 @@ export function CommentsPage() {
           onChange={(e) => setForm({ ...form, content: e.target.value })}
           required
         />
-        <button type="submit">추가</button>
+        <button type="submit">{editingId ? '수정 완료' : '추가'}</button>
       </form>
     </div>
   );

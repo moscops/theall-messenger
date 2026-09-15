@@ -52,4 +52,52 @@ describe('CommentsPage', () => {
       )
     );
   });
+
+  it('edits an existing comment and submits the update instead of creating a new one', async () => {
+    vi.mocked(studentsApi.list).mockResolvedValue([
+      { id: 's1', name: '김민준', siblingIds: [], createdAt: '', updatedAt: '' }
+    ]);
+    vi.mocked(commentsApi.list).mockResolvedValue([
+      {
+        id: 'c1',
+        studentId: 's1',
+        date: '2026-09-15',
+        author: '조교',
+        content: '오늘 집중을 잘함',
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+    vi.mocked(commentsApi.update).mockResolvedValue({
+      id: 'c1',
+      studentId: 's1',
+      date: '2026-09-15',
+      author: '조교',
+      content: '수정된 내용',
+      createdAt: '',
+      updatedAt: ''
+    });
+
+    render(<CommentsPage />);
+    await screen.findByText(/오늘 집중을 잘함/);
+
+    await userEvent.click(screen.getByText('수정'));
+
+    expect(screen.getByPlaceholderText('내용')).toHaveValue('오늘 집중을 잘함');
+    expect(screen.getByPlaceholderText('작성자')).toHaveValue('조교');
+
+    const createCallsBefore = vi.mocked(commentsApi.create).mock.calls.length;
+
+    await userEvent.clear(screen.getByPlaceholderText('내용'));
+    await userEvent.type(screen.getByPlaceholderText('내용'), '수정된 내용');
+    await userEvent.click(screen.getByText('수정 완료'));
+
+    await waitFor(() =>
+      expect(commentsApi.update).toHaveBeenCalledWith(
+        'c1',
+        expect.objectContaining({ studentId: 's1', author: '조교', content: '수정된 내용' })
+      )
+    );
+    expect(commentsApi.create).toHaveBeenCalledTimes(createCallsBefore);
+  });
 });
